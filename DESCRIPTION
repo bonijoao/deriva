@@ -1,0 +1,24 @@
+Package: deriva
+Title: Tidy Drift Detection
+Version: 0.0.0.9000
+Authors@R:
+    person("Pedro", "Mambelli", , "pedromambelli@gmail.com", role = c("aut", "cre"))
+Description: Detect concept drift and data drift with a tidy interface that
+    composes with the 'tidymodels' ecosystem. Detectors are specified, fitted
+    on a baseline period, and advanced over new batches of observations,
+    returning tibbles annotated with warning and drift flags.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    cli,
+    generics,
+    rlang,
+    stats,
+    tibble,
+    vctrs
+Suggests:
+    ggplot2,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
