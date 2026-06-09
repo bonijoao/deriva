@@ -23,6 +23,15 @@ validate_signal <- function(data, col, spec, call = rlang::caller_env()) {
       )
     }
   }
+  if (m$signal_type == "distribution") {
+    if (!is.numeric(x)) {
+      cli::cli_abort(
+        c("Method {.val {spec$method}} expects a numeric signal.",
+          "x" = "Column {.val {col}} is {.cls {class(x)}}."),
+        call = call
+      )
+    }
+  }
   as.numeric(x)
 }
 
