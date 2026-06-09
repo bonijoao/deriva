@@ -23,3 +23,30 @@ sim_drift_stream <- function(n_pre = 500, n_post = 500,
     drift_true = c(rep(FALSE, n_pre), rep(TRUE, n_post))
   )
 }
+
+#' Simulate a continuous stream with a known distribution-shift point
+#'
+#' Generates a numeric stream drawn from `N(mean_pre, sd_pre)` for the first
+#' `n_pre` observations and `N(mean_post, sd_post)` afterwards. Companion to
+#' [sim_drift_stream()] for distribution-based detectors (e.g. `"kswin"`).
+#'
+#' @param n_pre,n_post Observations before / after the shift point.
+#' @param mean_pre,mean_post Means before / after the shift.
+#' @param sd_pre,sd_post Standard deviations before / after the shift.
+#' @param seed Optional integer for `set.seed()`.
+#' @return A tibble with `t` (index), `value` (numeric) and `drift_true`
+#'   (logical: `TRUE` after the shift point).
+#' @export
+#' @examples
+#' sim_dist_stream(n_pre = 100, n_post = 100, mean_post = 3, seed = 42)
+sim_dist_stream <- function(n_pre = 500, n_post = 500,
+                            mean_pre = 0, mean_post = 3,
+                            sd_pre = 1, sd_post = 1, seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+  tibble::tibble(
+    t = seq_len(n_pre + n_post),
+    value = c(stats::rnorm(n_pre, mean_pre, sd_pre),
+              stats::rnorm(n_post, mean_post, sd_post)),
+    drift_true = c(rep(FALSE, n_pre), rep(TRUE, n_post))
+  )
+}
