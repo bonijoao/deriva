@@ -32,4 +32,15 @@
       reference = "Raab et al. (2020). Reactive Soft Prototype Computing for Concept Drift Streams. Neurocomputing."
     )
   )
+  register_drift_method(
+    name = "page_hinkley",
+    init = page_hinkley_init,
+    step = page_hinkley_step,
+    signal_type = "distribution",
+    params = list(min_instances = 30, delta = 0.05, threshold = 50, alpha = 1),
+    meta = list(
+      full_name = "Page-Hinkley Test",
+      reference = "Page (1954). Continuous Inspection Schemes. Biometrika 41."
+    )
+  )
 }
