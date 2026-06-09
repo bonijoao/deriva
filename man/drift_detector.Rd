@@ -17,7 +17,7 @@ A \code{drift_detector} specification object.
 }
 \description{
 Creates an inert detector specification (analogous to a parsnip model
-spec). Nothing is computed until \code{\link[generics:fit]{generics::fit()}} is called on a baseline period.
+spec). Nothing is computed until \code{\link[=fit]{fit()}} is called on a baseline period.
 }
 \examples{
 drift_detector("ddm", min_instances = 50)
