@@ -101,4 +101,16 @@
       reference = "Frias-Blanco et al. (2015). Online and Non-Parametric Drift Detection Methods. IEEE TKDE."
     )
   )
+  register_drift_method(
+    name = "adwin",
+    init = adwin_init,
+    step = adwin_step,
+    signal_type = "distribution",
+    params = list(delta = 0.002, clock = 32, max_buckets = 5,
+                  min_window_length = 5, grace_period = 10),
+    meta = list(
+      full_name = "Adaptive Windowing",
+      reference = "Bifet & Gavalda (2007). Learning from Time-Changing Data with Adaptive Windowing. SDM 2007."
+    )
+  )
 }
