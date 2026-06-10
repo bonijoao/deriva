@@ -148,4 +148,29 @@
       reference = "Page (1954). Continuous Inspection Schemes. Biometrika 41."
     )
   )
+  mddm_reference <- "Pesaranghader, Viktor & Paquet (2018). McDiarmid Drift Detection Methods for Evolving Data Streams. IJCNN 2018."
+  register_drift_method(
+    name = "mddm_a",
+    init = mddm_a_init,
+    step = mddm_step,
+    signal_type = "error",
+    params = list(window_size = 100, delta = 1e-6, d = 0.01),
+    meta = list(full_name = "McDiarmid DDM (Arithmetic)", reference = mddm_reference)
+  )
+  register_drift_method(
+    name = "mddm_g",
+    init = mddm_g_init,
+    step = mddm_step,
+    signal_type = "error",
+    params = list(window_size = 100, delta = 1e-6, r = 1.01),
+    meta = list(full_name = "McDiarmid DDM (Geometric)", reference = mddm_reference)
+  )
+  register_drift_method(
+    name = "mddm_e",
+    init = mddm_e_init,
+    step = mddm_step,
+    signal_type = "error",
+    params = list(window_size = 100, delta = 1e-6, lambda = 0.01),
+    meta = list(full_name = "McDiarmid DDM (Euler)", reference = mddm_reference)
+  )
 }
