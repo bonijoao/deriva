@@ -113,4 +113,28 @@
       reference = "Bifet & Gavalda (2007). Learning from Time-Changing Data with Adaptive Windowing. SDM 2007."
     )
   )
+  register_drift_method(
+    name = "rddm",
+    init = rddm_init,
+    step = rddm_step,
+    signal_type = "error",
+    params = list(min_instances = 129, warning_level = 1.773,
+                  out_control_level = 2.258, max_concept = 40000,
+                  min_concept = 7000, warn_limit = 1400),
+    meta = list(
+      full_name = "Reactive Drift Detection Method",
+      reference = "Barros et al. (2017). RDDM: Reactive Drift Detection Method. Expert Systems with Applications 90."
+    )
+  )
+  register_drift_method(
+    name = "fhddms",
+    init = fhddms_init,
+    step = fhddms_step,
+    signal_type = "error",
+    params = list(window_size = 100, short_size = 25, delta = 1e-7),
+    meta = list(
+      full_name = "Stacking Fast Hoeffding Drift Detection Method",
+      reference = "Pesaranghader, Viktor & Paquet (2017). Reservoir of Diverse Adaptive Learners and Stacking FHDDM for Evolving Data Streams. Machine Learning."
+    )
+  )
 }
