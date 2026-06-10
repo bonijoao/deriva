@@ -137,4 +137,15 @@
       reference = "Pesaranghader, Viktor & Paquet (2017). Reservoir of Diverse Adaptive Learners and Stacking FHDDM for Evolving Data Streams. Machine Learning."
     )
   )
+  register_drift_method(
+    name = "cusum",
+    init = cusum_init,
+    step = cusum_step,
+    signal_type = "distribution",
+    params = list(min_instances = 30, delta = 0.005, threshold = 50),
+    meta = list(
+      full_name = "Cumulative Sum",
+      reference = "Page (1954). Continuous Inspection Schemes. Biometrika 41."
+    )
+  )
 }
