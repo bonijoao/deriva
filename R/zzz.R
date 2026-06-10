@@ -43,4 +43,62 @@
       reference = "Page (1954). Continuous Inspection Schemes. Biometrika 41."
     )
   )
+  register_drift_method(
+    name = "ewma",
+    init = ewma_init,
+    step = ewma_step,
+    signal_type = "error",
+    params = list(lambda = 0.2, L = 3.5, min_instances = 30),
+    meta = list(
+      full_name = "EWMA for Concept Drift",
+      reference = "Ross et al. (2012). EWMA Charts for Detecting Concept Drift. Pattern Recognition Letters."
+    )
+  )
+  register_drift_method(
+    name = "stepd",
+    init = stepd_init,
+    step = stepd_step,
+    signal_type = "error",
+    params = list(window_size = 30, warning_level = 0.05,
+                  out_control_level = 0.003, min_instances = 30),
+    meta = list(
+      full_name = "Statistical Test of Equal Proportions Detector",
+      reference = "Nishida (2008). Detecting Concept Drift Using Statistical Testing. Discovery Science 2008."
+    )
+  )
+  register_drift_method(
+    name = "fhddm",
+    init = fhddm_init,
+    step = fhddm_step,
+    signal_type = "error",
+    params = list(window_size = 100, delta = 1e-7, delta_warning = 1e-5),
+    meta = list(
+      full_name = "Fast Hoeffding Drift Detection Method",
+      reference = "Pesaranghader & Viktor (2016). Fast Hoeffding Drift Detection Method. ECML-PKDD 2016."
+    )
+  )
+  register_drift_method(
+    name = "hddm_a",
+    init = hddm_a_init,
+    step = hddm_a_step,
+    signal_type = "error",
+    params = list(drift_confidence = 0.001, warning_confidence = 0.005,
+                  two_side_option = TRUE),
+    meta = list(
+      full_name = "Hoeffding Drift Detection Method (A-test)",
+      reference = "Frias-Blanco et al. (2015). Online and Non-Parametric Drift Detection Methods. IEEE TKDE."
+    )
+  )
+  register_drift_method(
+    name = "hddm_w",
+    init = hddm_w_init,
+    step = hddm_w_step,
+    signal_type = "error",
+    params = list(drift_confidence = 0.001, warning_confidence = 0.005,
+                  lambda_option = 0.05, two_side_option = TRUE),
+    meta = list(
+      full_name = "Hoeffding Drift Detection Method (W-test)",
+      reference = "Frias-Blanco et al. (2015). Online and Non-Parametric Drift Detection Methods. IEEE TKDE."
+    )
+  )
 }
