@@ -11,13 +11,13 @@ Detects concept drift and data drift in streams produced by deployed machine lea
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/pedromambelli/deriva}
-  \item Report bugs at \url{https://github.com/pedromambelli/deriva/issues}
+  \item \url{https://github.com/bonijoao/deriva}
+  \item Report bugs at \url{https://github.com/bonijoao/deriva/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Pedro Mambelli \email{pedromambelli@gmail.com}
+\strong{Maintainer}: João Paulo Bonifácio \email{jpab.27@hotmail.com}
 
 }
 \keyword{internal}
