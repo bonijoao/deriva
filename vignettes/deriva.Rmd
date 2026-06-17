@@ -1,0 +1,171 @@
+---
+title: "Getting Started with deriva"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with deriva}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 70)
+```
+
+```{r load}
+library(deriva)
+```
+
+## What is concept drift?
+
+A machine learning model trained on historical data operates under the implicit assumption that the data-generating process remains stable over time. When this assumption breaks down — because user behaviour shifts, sensor calibration drifts, or the world simply changes — the model's predictions degrade without any obvious error being raised. This phenomenon is called **concept drift**.
+
+Monitoring for drift requires a *drift detector*: an algorithm that reads a stream of per-observation signals (typically prediction errors) and raises a flag when the signal's distribution has changed significantly. The `deriva` package provides a tidy interface to a catalogue of 22 such detectors, designed to compose naturally with the tidymodels ecosystem.
+
+## Quick start
+
+The one-shot shortcut `detect_drift()` runs a detector over an existing column and returns the data annotated with `.warning` and `.drift` flags.
+
+```{r quickstart}
+# Simulate a stream: 500 stable observations, then 500 with higher error rate
+stream <- sim_drift_stream(n_pre = 500, n_post = 500,
+                           p_pre = 0.05, p_post = 0.30,
+                           seed = 42)
+
+result <- detect_drift(stream, .col = error, method = "ddm")
+
+# Where was drift flagged?
+subset(result, .drift)
+```
+
+The detector correctly identifies the distributional change after the known drift point (observation 500).
+
+## The deriva interface
+
+`deriva` follows the same three-verb pattern as tidymodels: **specify → fit → advance**.
+
+### 1. Specify a detector
+
+`drift_detector()` creates an inert specification — no computation happens here.
+
+```{r spec}
+spec <- drift_detector("ddm", min_instances = 30)
+spec
+```
+
+Pass method hyperparameters as named arguments. Unknown parameters raise an informative error.
+
+### 2. Fit on a baseline
+
+`fit()` runs the detector over the **baseline period** — the stable window against which future observations are compared.
+
+```{r fit}
+baseline <- sim_drift_stream(n_pre = 300, n_post = 0, seed = 1)
+
+fitted <- fit(spec, baseline, signal = error)
+fitted
+```
+
+The fitted object is **immutable**: it stores the internal engine state after processing the baseline, ready to receive new data.
+
+### 3. Advance over new batches
+
+`advance()` feeds a new batch to the detector and returns a **new** fitted object with the state updated and the annotated batch appended to the history. The original object is not modified.
+
+```{r advance}
+batch1 <- sim_drift_stream(n_pre = 200, n_post = 0,   seed = 2)
+batch2 <- sim_drift_stream(n_pre = 0,   n_post = 300, p_post = 0.35, seed = 3)
+
+fitted2 <- advance(fitted,  batch1)
+fitted3 <- advance(fitted2, batch2)
+fitted3
+```
+
+Batches can be any size — including a single observation for true streaming use.
+
+### 4. Inspect results
+
+**`augment()`** returns the full annotated history as a tibble.
+
+```{r augment}
+history <- augment(fitted3)
+tail(history[, c("t", "error", ".phase", ".warning", ".drift")], 10)
+```
+
+**`tidy()`** extracts the detected drift points.
+
+```{r tidy}
+tidy(fitted3)
+```
+
+**`glance()`** gives a one-row summary.
+
+```{r glance}
+glance(fitted3)
+```
+
+**`autoplot()`** plots the running mean of the signal with warning (orange) and drift (red) markers, and a dotted line separating baseline from stream.
+
+```{r autoplot, eval = requireNamespace("ggplot2", quietly = TRUE), fig.width = 6.5, fig.height = 3.5}
+library(ggplot2)
+autoplot(fitted3)
+```
+
+## Bridging from tidymodels
+
+In a real workflow, the signal column comes from model predictions, not a simulation. `add_prediction_error()` converts the output of tidymodels' `augment()` (which contains truth and estimate columns) into a `.error` column that drift detectors can consume.
+
+```{r bridge}
+# Simulate tidymodels augment() output for a classifier
+predictions <- data.frame(
+  time     = 1:8,
+  truth    = factor(c("yes","no","yes","yes","no","yes","no","yes")),
+  .pred_class = factor(c("yes","no","yes","no" ,"no","no" ,"no","yes"))
+)
+
+add_prediction_error(predictions, truth = truth)
+```
+
+For regression problems, `.error` is the absolute prediction error; for classification it is a 0/1 mismatch indicator.
+
+## Distribution-based detectors
+
+Some detectors monitor the distribution of a numeric stream directly, without requiring labelled errors. These `signal_type = "distribution"` methods (such as `"kswin"` and `"adwin"`) expect a continuous input column.
+
+```{r kswin}
+cont_stream <- sim_dist_stream(
+  n_pre = 500, n_post = 500,
+  mean_pre = 0, mean_post = 2,
+  seed = 99
+)
+
+detect_drift(cont_stream, .col = value, method = "kswin") |>
+  subset(.drift) |>
+  head()
+```
+
+## Available methods
+
+`deriva` ships with 22 drift detectors across two signal types.
+
+| Signal type | Methods |
+|---|---|
+| `"error"` (0/1 or continuous error) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd`, `cusum` |
+| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `seed`, `seqdrift2` |
+
+Use `drift_detector("<method>")` to inspect default hyperparameters for any method.
+
+## Summary
+
+The core `deriva` workflow is:
+
+```r
+drift_detector("ddm") |>          # specify
+  fit(baseline, signal = error) |> # learn reference level
+  advance(new_batch)               # update state, persist flags
+```
+
+Supplementary verbs — `augment()`, `tidy()`, `glance()`, `autoplot()` — follow the tidymodels convention and make it straightforward to inspect, summarise, and plot detection results at any point in the stream.

@@ -173,4 +173,67 @@
     params = list(window_size = 100, delta = 1e-6, lambda = 0.01),
     meta = list(full_name = "McDiarmid DDM (Euler)", reference = mddm_reference)
   )
+  fisher_reference <- "de Lima Cabral & de Barros (2018). Concept drift detection based on Fisher's Exact test. Information Sciences 442-443."
+  register_drift_method(
+    name = "ftdd",
+    init = ftdd_init,
+    step = ftdd_step,
+    signal_type = "error",
+    params = list(window_size = 30, warning_level = 0.05,
+                  out_control_level = 0.003, min_instances = 30),
+    meta = list(full_name = "Fisher Test Drift Detector", reference = fisher_reference)
+  )
+  register_drift_method(
+    name = "fpdd",
+    init = fpdd_init,
+    step = fpdd_step,
+    signal_type = "error",
+    params = list(window_size = 30, warning_level = 0.05,
+                  out_control_level = 0.003, min_instances = 30, min_cell = 5),
+    meta = list(full_name = "Fisher Proportions Drift Detector", reference = fisher_reference)
+  )
+  register_drift_method(
+    name = "fsdd",
+    init = fsdd_init,
+    step = fsdd_step,
+    signal_type = "error",
+    params = list(window_size = 30, warning_level = 0.05,
+                  out_control_level = 0.003, min_instances = 30, min_cell = 5),
+    meta = list(full_name = "Fisher Square Drift Detector", reference = fisher_reference)
+  )
+  register_drift_method(
+    name = "wstd",
+    init = wstd_init,
+    step = wstd_step,
+    signal_type = "error",
+    params = list(window_size = 30, warning_level = 0.05,
+                  out_control_level = 0.003, min_instances = 30, max_old = 4000),
+    meta = list(
+      full_name = "Wilcoxon Rank Sum Test Drift Detector",
+      reference = "de Barros, Hidalgo & de Lima Cabral (2018). Wilcoxon Rank Sum Test Drift Detector. Neurocomputing 275."
+    )
+  )
+  register_drift_method(
+    name = "seed",
+    init = seed_init,
+    step = seed_step,
+    signal_type = "distribution",
+    params = list(delta = 0.05, block_size = 32, epsilon_prime = 0.01,
+                  alpha = 0.8, compression_term = 75),
+    meta = list(
+      full_name = "SEED (block-based adaptive windowing)",
+      reference = "Huang, Koh, Dobbie & Pears (2014). Drift Detection Using Stream Volatility. ECML PKDD 2014."
+    )
+  )
+  register_drift_method(
+    name = "seqdrift2",
+    init = seqdrift2_init,
+    step = seqdrift2_step,
+    signal_type = "distribution",
+    params = list(delta = 0.01, block_size = 200),
+    meta = list(
+      full_name = "SeqDrift2 (reservoir sampling + Bernstein bound)",
+      reference = "Pears, Sakthithasan & Koh (2014). Detecting concept change in dynamic data streams. Machine Learning 97."
+    )
+  )
 }

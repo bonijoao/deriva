@@ -4,9 +4,17 @@
 \name{deriva-package}
 \alias{deriva}
 \alias{deriva-package}
-\title{deriva: Tidy Drift Detection}
+\title{deriva: Tidy Drift Detection for Monitored Machine Learning Models}
 \description{
-Detect concept drift and data drift with a tidy interface that composes with the 'tidymodels' ecosystem. Detectors are specified, fitted on a baseline period, and advanced over new batches of observations, returning tibbles annotated with warning and drift flags.
+Detects concept drift and data drift in streams produced by deployed machine learning models, using a tidy interface that composes with the 'tidymodels' ecosystem. Detectors are specified, fitted on a baseline period, and advanced over new batches of observations, returning tibbles annotated with warning and drift flags. A catalogue of 22 sequential drift detectors is provided, covering both error-based methods (e.g., DDM, EDDM, HDDM, EWMA) and distribution-based methods (e.g., ADWIN, KSWIN, Page-Hinkley).
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/pedromambelli/deriva}
+  \item Report bugs at \url{https://github.com/pedromambelli/deriva/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Pedro Mambelli \email{pedromambelli@gmail.com}

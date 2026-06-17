@@ -1,13 +1,20 @@
 Package: deriva
-Title: Tidy Drift Detection
-Version: 0.0.0.9000
+Title: Tidy Drift Detection for Monitored Machine Learning Models
+Version: 0.1.0
 Authors@R:
-    person("Pedro", "Mambelli", , "pedromambelli@gmail.com", role = c("aut", "cre"))
-Description: Detect concept drift and data drift with a tidy interface that
-    composes with the 'tidymodels' ecosystem. Detectors are specified, fitted
-    on a baseline period, and advanced over new batches of observations,
-    returning tibbles annotated with warning and drift flags.
+    person("João Paulo", "Bonifácio", , "jpab.27@hotmail.com",
+           role = c("aut", "cre"))
+Description: Detects concept drift and data drift in streams produced by
+    deployed machine learning models, using a tidy interface that composes
+    with the 'tidymodels' ecosystem. Detectors are specified, fitted on a
+    baseline period, and advanced over new batches of observations,
+    returning tibbles annotated with warning and drift flags. A catalogue
+    of 22 sequential drift detectors is provided, covering both
+    error-based methods (e.g., DDM, EDDM, HDDM, EWMA) and
+    distribution-based methods (e.g., ADWIN, KSWIN, Page-Hinkley).
 License: MIT + file LICENSE
+URL: https://github.com/bonijoao/deriva
+BugReports: https://github.com/bonijoao/deriva/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
@@ -20,5 +27,8 @@ Imports:
     vctrs
 Suggests:
     ggplot2,
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 Config/testthat/edition: 3
