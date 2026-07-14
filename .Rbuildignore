@@ -1,4 +1,5 @@
 ^\.github$
+^README\.pt-BR\.md$
 ^cran-comments\.md$
 ^data-raw$
 ^LICENSE\.md$

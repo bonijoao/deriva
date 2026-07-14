@@ -108,4 +108,4 @@ See `vignette("deriva")` for a complete walkthrough.
 
 ## License
 
-MIT © deriva authors — see [LICENSE.md](LICENSE.md).
+MIT © deriva authors — see [LICENSE](LICENSE).
