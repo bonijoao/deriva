@@ -112,4 +112,4 @@ Veja `vignette("deriva")` para um passo a passo completo (em inglês).
 
 ## Licença
 
-MIT © deriva authors — veja [LICENSE.md](LICENSE.md).
+MIT © deriva authors — veja [LICENSE](LICENSE).
