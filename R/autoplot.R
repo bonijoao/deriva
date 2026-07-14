@@ -67,7 +67,7 @@ autoplot.drift_detector_fit <- function(object, ...) {
     ggplot2::labs(
       title = paste0("Drift monitoring (", object$spec$method, ")"),
       subtitle = sprintf(
-        "%d observations · %d warning(s) · %d drift(s) detected",
+        "%d observations | %d warning(s) | %d drift(s) detected",
         nrow(df), sum(df$warning), sum(df$drift)
       ),
       x = "observation",
