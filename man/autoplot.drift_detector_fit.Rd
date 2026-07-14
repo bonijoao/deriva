@@ -16,6 +16,7 @@ A ggplot object.
 }
 \description{
 Plots the running mean of the signal over the full history, with the
-baseline/stream boundary, warning points (orange) and drift points
-(red vertical lines). Requires ggplot2 (Suggests).
+baseline/stream boundary (labelled "training ends"), warning points
+(orange) and drift points (red vertical lines, the first one labelled
+with its index). Requires ggplot2 (Suggests).
 }
