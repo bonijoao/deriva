@@ -1,4 +1,5 @@
 ^\.github$
+^cran-comments\.md$
 ^data-raw$
 ^LICENSE\.md$
 ^.*\.Rproj$
