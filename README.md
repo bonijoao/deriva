@@ -4,10 +4,10 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- badges: end -->
 
-**Read this in other languages:** [Português](README.pt-BR.md)
+**Read this in other languages:** [Português](https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md)
 
 `deriva` detects **concept drift** and **data drift** in streams produced by deployed
 machine learning models, through a tidy interface that composes naturally with the
