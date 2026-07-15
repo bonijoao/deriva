@@ -20,15 +20,19 @@ tidyverse, not misspellings.
 
 ## Resubmission
 
-This is a resubmission. The CRAN incoming pretest flagged two additional NOTEs on
-2026-07-14, both now fixed:
+This is a second resubmission. Uwe Ligges reported invalid file URIs in
+`README.md` pointing to `LICENSE.md` and `README.pt-BR.md` — both are excluded
+from the built package (only `LICENSE` ships, and `README.pt-BR.md` is a
+GitHub-only Portuguese translation, excluded via `.Rbuildignore`), so links to
+them from `README.md` resolved to nothing inside the installed package.
 
-* "Invalid file URI" pointing to `LICENSE.md` from `README.md` — `LICENSE.md` is
-  excluded from the built package (only the CRAN-required `LICENSE` stub ships);
-  the README now links to `LICENSE` instead.
-* "Non-standard file/directory found at top level: 'README.pt-BR.md'" — this
-  Portuguese-language README is now excluded from the built package via
-  `.Rbuildignore` (it remains in the GitHub repository only).
+Fixed by checking the actual built tarball's `README.md`: the license badge and
+license link now point to `LICENSE` (which does ship), and the language-switch
+link now points to the absolute GitHub URL
+(`https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md`) instead of a
+local relative path, since `README.pt-BR.md` is never part of the package.
+Verified with `tar -tzf` / extracting `README.md` from the freshly built
+tarball that no remaining link resolves to an excluded file.
 
 ## Downstream dependencies
 
