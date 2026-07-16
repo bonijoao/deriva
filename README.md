@@ -34,11 +34,6 @@ error-based methods (DDM, EDDM, HDDM, EWMA, ...) and distribution-based methods
 pak::pak("bonijoao/deriva")
 ```
 
-Once accepted on CRAN:
-
-```r
-install.packages("deriva")
-```
 
 ## Quick start
 
