@@ -28,12 +28,15 @@ error-based methods (DDM, EDDM, HDDM, EWMA, ...) and distribution-based methods
 
 ## Installation
 
-```r
-# From GitHub (development version)
-# install.packages("pak")
-pak::pak("bonijoao/deriva")
+Install from CRAN:
 ```
-
+install.packages("educabR")
+```
+Or install the development version from GitHub:
+```
+# install.packages("remotes")
+remotes::install_github("SidneyBissoli/educabR")
+```
 
 ## Quick start
 
