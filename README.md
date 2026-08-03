@@ -30,12 +30,12 @@ error-based methods (DDM, EDDM, HDDM, EWMA, ...) and distribution-based methods
 
 Install from CRAN:
 ```
-install.packages("educabR")
+install.packages("deriva")
 ```
 Or install the development version from GitHub:
 ```
 # install.packages("remotes")
-remotes::install_github("SidneyBissoli/educabR")
+remotes::install_github("bonijoao/deriva")
 ```
 
 ## Quick start
