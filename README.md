@@ -97,8 +97,8 @@ model |>
 
 | Signal type | Methods |
 |---|---|
-| `"error"` (0/1 or continuous error) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd`, `cusum` |
-| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `seed`, `seqdrift2` |
+| `"error"` (0/1 or continuous error) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
+| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2` |
 
 Use `drift_detector("<method>")` to inspect the default hyperparameters for any method.
 
