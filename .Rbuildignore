@@ -7,5 +7,7 @@
 ^\.Rproj\.user$
 ^doc$
 ^Meta$
-^CRAN-SUBMISSION$
 \.Rhistory$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

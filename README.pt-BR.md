@@ -3,6 +3,8 @@
 # deriva
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/deriva)](https://CRAN.R-project.org/package=deriva)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/deriva)](https://CRAN.R-project.org/package=deriva)
 [![R-CMD-check](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- badges: end -->
@@ -30,16 +32,17 @@ baseados em distribuição (ADWIN, KSWIN, Page-Hinkley, ...).
 
 ## Instalação
 
-```r
-# Do GitHub (versão de desenvolvimento)
-# install.packages("pak")
-pak::pak("bonijoao/deriva")
-```
-
-Assim que for aceito no CRAN:
+Instale a versão publicada no CRAN:
 
 ```r
 install.packages("deriva")
+```
+
+Ou a versão de desenvolvimento do GitHub:
+
+```r
+# install.packages("remotes")
+remotes::install_github("bonijoao/deriva")
 ```
 
 ## Começo rápido
