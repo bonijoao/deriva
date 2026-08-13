@@ -102,8 +102,8 @@ modelo |>
 
 | Tipo de sinal | Métodos |
 |---|---|
-| `"error"` (0/1 ou erro contínuo) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd`, `cusum` |
-| `"distribution"` (fluxo numérico) | `kswin`, `adwin`, `page_hinkley`, `seed`, `seqdrift2` |
+| `"error"` (0/1 ou erro contínuo) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
+| `"distribution"` (fluxo numérico) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2` |
 
 Use `drift_detector("<método>")` para inspecionar os hiperparâmetros padrão de
 qualquer método.
