@@ -3,6 +3,8 @@
 # deriva
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/deriva)](https://CRAN.R-project.org/package=deriva)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/deriva)](https://CRAN.R-project.org/package=deriva)
 [![R-CMD-check](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- badges: end -->
@@ -28,12 +30,15 @@ error-based methods (DDM, EDDM, HDDM, EWMA, ...) and distribution-based methods
 
 ## Installation
 
-Install from CRAN:
-```
+Install the released version from CRAN:
+
+```r
 install.packages("deriva")
 ```
-Or install the development version from GitHub:
-```
+
+Or the development version from GitHub:
+
+```r
 # install.packages("remotes")
 remotes::install_github("bonijoao/deriva")
 ```

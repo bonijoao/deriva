@@ -31,7 +31,7 @@ Description: Detects concept drift and data drift in streams produced by
     and the Page-Hinkley test of Page (1954)
     <doi:10.1093/biomet/41.1-2.100>.
 License: MIT + file LICENSE
-URL: https://github.com/bonijoao/deriva
+URL: https://github.com/bonijoao/deriva, https://bonijoao.github.io/deriva/
 BugReports: https://github.com/bonijoao/deriva/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

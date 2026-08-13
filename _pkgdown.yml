@@ -1,0 +1,39 @@
+url: https://bonijoao.github.io/deriva/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Specifying and fitting detectors
+  desc: >
+    Choose a detector from the catalogue of 22 methods, fit it on a baseline
+    period, and advance it over new observations.
+  contents:
+  - drift_detector
+  - fit.drift_detector
+  - advance
+  - detect_drift
+
+- title: Inspecting results
+  desc: Tidy accessors for a fitted detector and its stream of flags.
+  contents:
+  - augment.drift_detector_fit
+  - tidy.drift_detector_fit
+  - glance.drift_detector_fit
+  - autoplot.drift_detector_fit
+
+- title: Working with tidymodels
+  desc: Turn model predictions into the per-observation error signal detectors consume.
+  contents:
+  - add_prediction_error
+
+- title: Simulating streams
+  desc: Synthetic streams with known change points, for benchmarking and teaching.
+  contents:
+  - sim_drift_stream
+  - sim_dist_stream
+
+- title: Package
+  contents:
+  - deriva-package
+  - reexports
