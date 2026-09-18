@@ -1,0 +1,58 @@
+---
+title: "Distribution-Based Drift Detection"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Distribution-Based Drift Detection}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r load}
+library(deriva)
+```
+
+## Error-based vs. distribution-based
+
+`vignette("deriva")` covers `signal_type = "error"` methods (DDM and friends): they need a labelled 0/1 (or continuous) error signal, usually built from a model's predictions with `add_prediction_error()`.
+
+`signal_type = "distribution"` methods are different: they watch a raw numeric stream directly — no labels, no baseline error rate — and flag a change in the stream's distribution itself. This is the right family when you want to monitor an input feature or a sensor reading for drift, not just a model's error.
+
+## The running example: a drifting sensor
+
+`sensor_monitoring`, shipped with the package, is a numeric sensor-reading stream: 500 stable observations centred at 0, then 500 after the sensor drifted out of calibration and the mean shifted to 2.
+
+```{r data}
+sensor_monitoring
+```
+
+## Detecting the shift with KSWIN
+
+`"kswin"` (Kolmogorov-Smirnov Windowing) is a `signal_type = "distribution"` method: it repeatedly compares a recent window of the stream against an older one with a Kolmogorov-Smirnov test.
+
+KSWIN is stochastic — it draws a random sub-sample from its window at every test. Pass `seed` to `drift_detector()` (or, as here, straight into `detect_drift()`, which forwards it) to get a result that is reproducible and does not depend on the state of your session's random number generator.
+
+```{r kswin}
+result <- detect_drift(sensor_monitoring, .col = value, method = "kswin", seed = 7)
+
+subset(result, .drift)
+```
+
+No detection fires in the 500 stable observations. Unlike DDM, which settles into a new stable state after one detection, KSWIN keeps comparing windows as they slide past the change point — so it fires **several times** while its window catches up to the new distribution, not just once. That is expected behaviour for a windowed method, not noise: every one of these detections comes after the true drift point, and the gaps between them shrink as the window fully absorbs the new distribution.
+
+## Other distribution-based methods
+
+`"adwin"` (Adaptive Windowing) solves the same problem with an adaptively-sized window instead of a fixed one, and is deterministic — no `seed` needed:
+
+```{r adwin}
+detect_drift(sensor_monitoring, .col = value, method = "adwin") |>
+  subset(.drift)
+```
+
+On this stream ADWIN settles the way DDM did in `vignette("deriva")`: a single detection, no repeated firing while the window catches up. Which method fires once versus several times is a property of the algorithm, not of one being more "correct" than the other — see `drift_detector("adwin")` for its hyperparameters, and `vignette("deriva")` for the full tidy workflow (`fit()`/`advance()`/`augment()`/...), which works identically for distribution-based methods.
