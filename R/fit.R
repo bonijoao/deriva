@@ -2,12 +2,48 @@
 #' @export
 generics::fit
 
-new_drift_detector_fit <- function(spec, state, signal_col, history, rng = NULL) {
+new_drift_detector_fit <- function(spec, state, signal_col, history, counts,
+                                   drifts, rng = NULL) {
   structure(
     list(spec = spec, state = state, signal_col = signal_col, history = history,
-         rng = rng),
+         counts = counts, drifts = drifts, rng = rng),
     class = "drift_detector_fit"
   )
+}
+
+empty_tallies <- function() {
+  list(
+    counts = list(n_obs = 0L, n_baseline = 0L, n_warning = 0L),
+    drifts = tibble::tibble(index = integer(), phase = character())
+  )
+}
+
+# Totals live outside `history` so they stay exact when it is truncated.
+update_tallies <- function(counts, drifts, signals, phase) {
+  n <- nrow(signals)
+  hit <- which(!is.na(signals$.drift) & signals$.drift)
+  list(
+    counts = list(
+      n_obs = counts$n_obs + n,
+      n_baseline = counts$n_baseline + if (phase == "baseline") n else 0L,
+      n_warning = counts$n_warning + sum(signals$.warning, na.rm = TRUE)
+    ),
+    drifts = vctrs::vec_rbind(
+      drifts,
+      tibble::tibble(index = counts$n_obs + hit, phase = rep(phase, length(hit)))
+    )
+  )
+}
+
+check_fit_version <- function(object, call = rlang::caller_env()) {
+  if (is.null(object$counts)) {
+    cli::cli_abort(
+      c("This fitted detector was created by deriva 0.1.0 and lacks running totals.",
+        "i" = "Refit it with {.fn fit}."),
+      call = call
+    )
+  }
+  invisible(object)
 }
 
 #' Fit a drift detector on a baseline period
@@ -32,22 +68,26 @@ fit.drift_detector <- function(object, data, signal, ...) {
   x <- validate_signal(data, col, object)
   m <- drift_method(object$method)
   out <- run_engine_rng(m, m$init(object$params), x, seed_to_rng(object$seed))
+  empty <- empty_tallies()
+  tallies <- update_tallies(empty$counts, empty$drifts, out$signals, "baseline")
   new_drift_detector_fit(
     spec = object,
     state = out$state,
     signal_col = col,
     history = annotate(data, out$signals, phase = "baseline"),
+    counts = tallies$counts,
+    drifts = tallies$drifts,
     rng = out$rng
   )
 }
 
 #' @export
 print.drift_detector_fit <- function(x, ...) {
-  h <- x$history
+  check_fit_version(x)
   cat("Fitted Drift Detector (", x$spec$method, ")\n", sep = "")
-  cat("  observations: ", nrow(h),
-      " (", sum(h$.phase == "baseline"), " baseline)\n", sep = "")
-  cat("  warnings: ", sum(h$.warning, na.rm = TRUE),
-      " | drifts: ", sum(h$.drift, na.rm = TRUE), "\n", sep = "")
+  cat("  observations: ", x$counts$n_obs,
+      " (", x$counts$n_baseline, " baseline)\n", sep = "")
+  cat("  warnings: ", x$counts$n_warning,
+      " | drifts: ", nrow(x$drifts), "\n", sep = "")
   invisible(x)
 }

@@ -26,15 +26,19 @@ advance <- function(object, ...) {
 #' f0 <- fit(drift_detector("ddm"), base, signal = error)
 #' f1 <- advance(f0, sim_drift_stream(n_pre = 0, n_post = 50, seed = 2))
 advance.drift_detector_fit <- function(object, new_data, ...) {
+  check_fit_version(object)
   x <- validate_signal(new_data, object$signal_col, object$spec)
   m <- drift_method(object$spec$method)
   out <- run_engine_rng(m, object$state, x, object$rng)
   batch <- annotate(new_data, out$signals, phase = "stream")
+  tallies <- update_tallies(object$counts, object$drifts, out$signals, "stream")
   new_drift_detector_fit(
     spec = object$spec,
     state = out$state,
     signal_col = object$signal_col,
     history = vctrs::vec_rbind(object$history, batch),
+    counts = tallies$counts,
+    drifts = tallies$drifts,
     rng = out$rng
   )
 }

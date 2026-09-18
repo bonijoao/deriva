@@ -20,6 +20,8 @@ test_that("advancing in two batches equals advancing once (fold property)", {
   two <- advance(advance(f0, stream[1:200, ]), stream[201:400, ])
   expect_identical(one$history, two$history)
   expect_identical(one$state, two$state)
+  expect_identical(one$counts, two$counts)
+  expect_identical(one$drifts, two$drifts)
 })
 
 test_that("batch of size 1 works (stream mode)", {
