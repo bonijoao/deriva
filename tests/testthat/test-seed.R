@@ -14,10 +14,10 @@ test_that("seed registered as a distribution method with defaults", {
   expect_identical(m$params$compression_term, 75)
 })
 
-test_that("seed warning is all NA and there is no NA warm-up", {
+test_that("seed warning is all NA and the first two blocks are NA", {
   out <- run_seed(stats::rnorm(200))
   expect_true(all(is.na(out$signals$.warning)))   # no warning level
-  expect_false(any(is.na(out$signals$.drift)))    # window-based -> FALSE, not NA
+  expect_true(all(is.na(out$signals$.drift[1:63])))
 })
 
 test_that("seed detects an error-rate jump after the change point", {

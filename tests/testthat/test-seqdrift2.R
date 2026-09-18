@@ -11,10 +11,10 @@ test_that("seqdrift2 registered as a distribution method with defaults", {
   expect_identical(m$params$block_size, 200)
 })
 
-test_that("seqdrift2 warning is all NA and there is no NA warm-up", {
+test_that("seqdrift2 warning is all NA and the first two blocks are NA", {
   set.seed(1); out <- run_seqdrift2(stats::rnorm(500))
   expect_true(all(is.na(out$signals$.warning)))   # no warning level
-  expect_false(any(is.na(out$signals$.drift)))    # window-based -> FALSE, not NA
+  expect_true(all(is.na(out$signals$.drift[1:399])))
 })
 
 test_that("seqdrift2 detects an error-rate jump after the change point", {

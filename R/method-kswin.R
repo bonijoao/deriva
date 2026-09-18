@@ -10,8 +10,9 @@ kswin_init <- function(params) {
 
 kswin_step <- function(state, obs) {
   p <- state$params
-  drift <- FALSE
+  drift <- NA
   if (length(state$window) >= p$window_size) {
+    drift <- FALSE
     state$window <- state$window[-1]
     rnd_indices <- sample(seq_len(length(state$window) - p$stat_size),
                           p$stat_size, replace = TRUE)

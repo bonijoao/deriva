@@ -10,7 +10,7 @@
 # stream can yield slightly different detections across runs. Set a seed for
 # reproducibility. No external R oracle (datadriftR lacks SeqDrift2) -> synthetic
 # validation. signal_type = "distribution"; no warning (NA); window-based warm-up
-# returns FALSE. The false-positive/delay optimisation refinement of the paper
+# returns NA. The false-positive/delay optimisation refinement of the paper
 # (mean-increase modulation of the bound) is intentionally omitted; the converged
 # Bernstein epsilon (k -> 0 limit) is used directly.
 
@@ -74,5 +74,6 @@ seqdrift2_step <- function(state, obs) {
       state <- seqdrift2_promote(state)          # first block: seed the reservoir
     }
   }
-  list(state = state, signal = list(warning = NA, drift = state$drift_detected))
+  warming <- state$n_total < 2 * p$block_size
+  list(state = state, signal = list(warning = NA, drift = if (warming) NA else state$drift_detected))
 }

@@ -16,10 +16,10 @@ test_that("mddm variants registered as error methods with reference defaults", {
   expect_identical(drift_method("mddm_e")$params$lambda, 0.01)
 })
 
-test_that("mddm variants emit FALSE (not NA) while the window fills", {
+test_that("mddm variants emit NA while the window fills", {
   for (nm in c("mddm_a", "mddm_g", "mddm_e")) {
     out <- run_mddm(nm, stats::rbinom(100, 1, 0.1))
-    expect_false(any(is.na(out$signals$.drift)))
+    expect_true(all(is.na(out$signals$.drift[1:99])))
   }
 })
 

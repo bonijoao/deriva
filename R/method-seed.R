@@ -9,7 +9,7 @@
 #
 # No external R oracle (datadriftR lacks SEED) -> synthetic validation.
 # signal_type = "distribution" (numeric, like ADWIN). No warning level (NA).
-# Window-based warm-up returns FALSE. Compression is implemented as a documented
+# Window-based warm-up returns NA. Compression is implemented as a documented
 # simplification of MOA's alpha-decayed schedule: it merges adjacent blocks whose
 # means are within epsilon_prime, sparing the two most recent blocks so detection
 # resolution at the head is preserved.
@@ -144,5 +144,6 @@ seed_step <- function(state, obs) {
       state <- seed_compress(state)
     }
   }
-  list(state = state, signal = list(warning = NA, drift = state$drift_detected))
+  warming <- state$n_total < 2 * p$block_size
+  list(state = state, signal = list(warning = NA, drift = if (warming) NA else state$drift_detected))
 }

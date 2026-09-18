@@ -19,6 +19,16 @@
 #'   in [tidy()] are tracked separately and stay exact whatever `keep` is.
 #'   `Inf` keeps everything and `0` keeps nothing; both warn.
 #'
+#' @section Warning and drift flags:
+#' Every detector annotates each observation with `.warning` and `.drift`
+#' under one contract. `NA`: the detector did not evaluate that observation
+#' (it is warming up, which also happens right after a detected drift resets
+#' it). `FALSE`: it evaluated and did not fire. `TRUE`: it fired. Detectors
+#' with no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
+#' `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddms"`, `"mddm_a"`, `"mddm_g"`,
+#' `"mddm_e"`) always give `.warning = NA`. Use `which(.drift)` or
+#' `dplyr::filter(.drift)`, which skip `NA`; `any(.drift)` needs `na.rm = TRUE`.
+#'
 #' @return A `drift_detector` specification object.
 #' @export
 #' @examples

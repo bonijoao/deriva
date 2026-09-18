@@ -10,7 +10,7 @@ test_that("fhddms registered with defaults; FALSE while window fills", {
   expect_identical(m$params$window_size, 100)
   expect_identical(m$params$short_size, 25)
   out <- run_fhddms(stats::rbinom(100, 1, 0.1))
-  expect_false(any(is.na(out$signals$.drift)))   # window-fill -> FALSE (like FHDDM)
+  expect_true(all(is.na(out$signals$.drift[1:99])))   # window-fill -> NA
 })
 
 test_that("fhddms detects an error-rate jump after the change point", {

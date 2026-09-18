@@ -4,7 +4,7 @@
 # older sub-window is dropped and drift is flagged. Translation verified
 # bit-for-bit against datadriftR (golden fixture). Original (MIT).
 # signal_type = "distribution" (numeric). No warning level (NA). Window-based
-# warm-up returns FALSE (no min_instances).
+# warm-up returns NA (no min_instances).
 
 adwin_init <- function(params) {
   list(params = params, n = 0, sum = 0, variance = 0, width = 0, tick = 0,
@@ -141,5 +141,6 @@ adwin_step <- function(state, obs) {
       } else break
     }
   }
-  list(state = state, signal = list(warning = NA, drift = state$drift_detected))
+  warming <- state$width <= p$grace_period && !state$drift_detected
+  list(state = state, signal = list(warning = NA, drift = if (warming) NA else state$drift_detected))
 }

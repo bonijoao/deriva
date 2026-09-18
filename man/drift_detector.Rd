@@ -33,6 +33,18 @@ A \code{drift_detector} specification object.
 Creates an inert detector specification (analogous to a parsnip model
 spec). Nothing is computed until \code{\link[=fit]{fit()}} is called on a baseline period.
 }
+\section{Warning and drift flags}{
+
+Every detector annotates each observation with \code{.warning} and \code{.drift}
+under one contract. \code{NA}: the detector did not evaluate that observation
+(it is warming up, which also happens right after a detected drift resets
+it). \code{FALSE}: it evaluated and did not fire. \code{TRUE}: it fired. Detectors
+with no warning level (\code{"ewma"}, \code{"page_hinkley"}, \code{"cusum"}, \code{"kswin"},
+\code{"adwin"}, \code{"seed"}, \code{"seqdrift2"}, \code{"fhddms"}, \code{"mddm_a"}, \code{"mddm_g"},
+\code{"mddm_e"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
+\code{dplyr::filter(.drift)}, which skip \code{NA}; \code{any(.drift)} needs \code{na.rm = TRUE}.
+}
+
 \examples{
 drift_detector("ddm", min_instances = 50)
 }

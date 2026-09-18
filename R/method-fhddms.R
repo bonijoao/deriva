@@ -9,7 +9,7 @@
 # tracks the historical MIN error rate per window, like deriva's FHDDM.
 # Drift-only (no warning, per the paper). No external R oracle (datadriftR has no
 # FHDDMS) -> validated against synthetic ground truth.
-# Returns FALSE while the long window fills (no min_instances; like FHDDM).
+# Returns NA while the long window fills (no min_instances; like FHDDM).
 fhddms_init <- function(params) {
   list(params = params, window = numeric(0), n_err = 0,
        p_min_l = Inf, p_min_s = Inf, change_detected = FALSE)
@@ -28,7 +28,7 @@ fhddms_step <- function(state, obs) {
   state$n_err <- state$n_err + obs
 
   if (length(state$window) < p$window_size) {
-    return(list(state = state, signal = list(warning = FALSE, drift = FALSE)))
+    return(list(state = state, signal = list(warning = NA, drift = NA)))
   }
 
   p_hat_l <- state$n_err / p$window_size
@@ -44,5 +44,5 @@ fhddms_step <- function(state, obs) {
   drift <- (p_hat_l - state$p_min_l) > eps_l ||
            (p_hat_s - state$p_min_s) > eps_s
   state$change_detected <- drift
-  list(state = state, signal = list(warning = FALSE, drift = drift))
+  list(state = state, signal = list(warning = NA, drift = drift))
 }

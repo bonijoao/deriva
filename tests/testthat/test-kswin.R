@@ -14,10 +14,9 @@ test_that("kswin is registered as a distribution method", {
   expect_identical(m$params$stat_size, 30)
 })
 
-test_that("kswin stays FALSE while the window fills (no NA, matches reference)", {
+test_that("kswin emits NA while the window fills", {
   out <- run_kswin(stats::rnorm(100))
-  expect_false(any(is.na(out$signals$.drift)))   # KSWIN returns FALSE, not NA, during warm-up
-  expect_false(any(out$signals$.drift))          # first test only at element 101
+  expect_true(all(is.na(out$signals$.drift)))   # first test only at element 101
 })
 
 test_that("kswin warning column is all NA (no warning level)", {
