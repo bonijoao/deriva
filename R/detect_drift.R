@@ -11,7 +11,7 @@
 #' @param data A data frame in temporal order.
 #' @param .col Unquoted name of the signal column.
 #' @param method Name of a registered method (default `"ddm"`).
-#' @param ... Hyperparameters forwarded to [drift_detector()].
+#' @param ... Hyperparameters and `seed`, forwarded to [drift_detector()].
 #'
 #' @return `data` as a tibble with `.warning` and `.drift` columns added.
 #' @export
@@ -23,6 +23,6 @@ detect_drift <- function(data, .col, method = "ddm", ...) {
   col <- rlang::as_name(rlang::ensym(.col))
   x <- validate_signal(data, col, spec)
   m <- drift_method(method)
-  out <- run_engine(m, m$init(spec$params), x)
+  out <- run_engine_rng(m, m$init(spec$params), x, seed_to_rng(spec$seed))
   annotate(data, out$signals)
 }

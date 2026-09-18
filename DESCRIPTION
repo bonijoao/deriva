@@ -42,7 +42,8 @@ Imports:
     rlang,
     stats,
     tibble,
-    vctrs
+    vctrs,
+    withr
 Suggests:
     ggplot2,
     knitr,

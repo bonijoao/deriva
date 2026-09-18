@@ -13,6 +13,10 @@ register_drift_method <- function(name, init, step, signal_type, params, checks,
   if (!setequal(names(checks), names(params)) || anyDuplicated(names(params))) {
     cli::cli_abort("Method {.val {name}}: every entry of {.arg params} needs exactly one entry in {.arg checks}.")
   }
+  reserved <- intersect(names(params), c("seed", "keep"))
+  if (length(reserved) > 0) {
+    cli::cli_abort("Method {.val {name}}: {.arg {reserved}} is reserved for {.fn drift_detector}.")
+  }
   stopifnot(is.null(constraint) || is.function(constraint))
   the$methods[[name]] <- list(
     name = name, init = init, step = step, signal_type = signal_type,

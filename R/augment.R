@@ -24,6 +24,6 @@ augment.drift_detector_fit <- function(x, new_data = NULL, ...) {
   }
   sig <- validate_signal(new_data, x$signal_col, x$spec)
   m <- drift_method(x$spec$method)
-  out <- run_engine(m, x$state, sig)
+  out <- run_engine_rng(m, x$state, sig, x$rng)
   annotate(new_data, out$signals)
 }

@@ -2,9 +2,10 @@
 #' @export
 generics::fit
 
-new_drift_detector_fit <- function(spec, state, signal_col, history) {
+new_drift_detector_fit <- function(spec, state, signal_col, history, rng = NULL) {
   structure(
-    list(spec = spec, state = state, signal_col = signal_col, history = history),
+    list(spec = spec, state = state, signal_col = signal_col, history = history,
+         rng = rng),
     class = "drift_detector_fit"
   )
 }
@@ -30,12 +31,13 @@ fit.drift_detector <- function(object, data, signal, ...) {
   col <- rlang::as_name(rlang::ensym(signal))
   x <- validate_signal(data, col, object)
   m <- drift_method(object$method)
-  out <- run_engine(m, m$init(object$params), x)
+  out <- run_engine_rng(m, m$init(object$params), x, seed_to_rng(object$seed))
   new_drift_detector_fit(
     spec = object,
     state = out$state,
     signal_col = col,
-    history = annotate(data, out$signals, phase = "baseline")
+    history = annotate(data, out$signals, phase = "baseline"),
+    rng = out$rng
   )
 }
 

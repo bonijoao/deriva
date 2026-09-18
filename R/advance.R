@@ -28,12 +28,13 @@ advance <- function(object, ...) {
 advance.drift_detector_fit <- function(object, new_data, ...) {
   x <- validate_signal(new_data, object$signal_col, object$spec)
   m <- drift_method(object$spec$method)
-  out <- run_engine(m, object$state, x)
+  out <- run_engine_rng(m, object$state, x, object$rng)
   batch <- annotate(new_data, out$signals, phase = "stream")
   new_drift_detector_fit(
     spec = object$spec,
     state = out$state,
     signal_col = object$signal_col,
-    history = vctrs::vec_rbind(object$history, batch)
+    history = vctrs::vec_rbind(object$history, batch),
+    rng = out$rng
   )
 }
