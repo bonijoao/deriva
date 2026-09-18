@@ -23,9 +23,9 @@ A new \code{drift_detector_fit}.
 \description{
 Feeds a new batch of observations (any size, including 1 — stream mode)
 to the detector and returns a NEW fitted object with the engine state
-advanced and the annotated batch appended to the history. The original
-object is not modified. This is the only way to persist state; see
-\code{\link[=augment]{augment()}} for a read-only preview.
+advanced and the annotated batch appended to the history (truncated to the
+last \code{keep} rows of the spec). The original object is not modified. This
+is the only way to persist state; see \code{\link[=augment]{augment()}} for a read-only preview.
 }
 \details{
 Why not \code{update()}: in the tidymodels ecosystem \code{update()} on a spec

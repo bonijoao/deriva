@@ -1,6 +1,6 @@
 Package: deriva
 Title: Tidy Drift Detection for Monitored Machine Learning Models
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: c(
     person("João Paulo Assis", "Bonifácio", , "jpab.27@hotmail.com",
            role = c("aut", "cre"),

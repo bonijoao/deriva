@@ -13,7 +13,7 @@ detect_drift(data, .col, method = "ddm", ...)
 
 \item{method}{Name of a registered method (default \code{"ddm"}).}
 
-\item{...}{Hyperparameters forwarded to \code{\link[=drift_detector]{drift_detector()}}.}
+\item{...}{Hyperparameters and \code{seed}, forwarded to \code{\link[=drift_detector]{drift_detector()}}.}
 }
 \value{
 \code{data} as a tibble with \code{.warning} and \code{.drift} columns added.

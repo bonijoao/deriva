@@ -12,8 +12,9 @@
 \item{...}{Not used.}
 }
 \value{
-A tibble with one row per detected drift: \code{index} (position in
-the history) and \code{phase}.
+A tibble with one row per detected drift: \code{index} (position since
+the start of the baseline, exact even when the history is truncated by
+\code{keep}) and \code{phase}.
 }
 \description{
 Drift points of a fitted detector

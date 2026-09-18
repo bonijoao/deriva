@@ -4,13 +4,27 @@
 \alias{drift_detector}
 \title{Specify a drift detector}
 \usage{
-drift_detector(method = "ddm", ...)
+drift_detector(method = "ddm", ..., seed = NULL, keep = 10000)
 }
 \arguments{
 \item{method}{Name of a registered detection method, e.g. \code{"ddm"}.}
 
 \item{...}{Method hyperparameters overriding the defaults (e.g.
-\code{min_instances = 50} for \code{"ddm"}). Unknown parameters error.}
+\code{min_instances = 50} for \code{"ddm"}). Unknown parameters and values
+outside a parameter's valid range error.}
+
+\item{seed}{\code{NULL} (default) or a single whole number. When set, the
+detector draws from its own private random stream, carried inside the
+fitted object: results are reproducible, do not depend on how the stream
+is split into batches, and the session's global RNG is left untouched.
+Only \code{"kswin"} and \code{"seqdrift2"} are stochastic. With \code{NULL} they draw
+from the global RNG, so call \code{\link[=set.seed]{set.seed()}} yourself for reproducibility.}
+
+\item{keep}{Number of most recent annotated rows retained in the fitted
+object's history (default \code{10000}), bounding memory and the cost of each
+\code{\link[=advance]{advance()}} on long-running streams. Totals in \code{\link[=glance]{glance()}} and drift points
+in \code{\link[=tidy]{tidy()}} are tracked separately and stay exact whatever \code{keep} is.
+\code{Inf} keeps everything and \code{0} keeps nothing; both warn.}
 }
 \value{
 A \code{drift_detector} specification object.
