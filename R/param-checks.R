@@ -1,6 +1,4 @@
-# Hyperparameter checkers (registry slot `checks`). A checker is
-# function(x, arg, call): returns invisibly or aborts with class
-# "deriva_error_invalid_param".
+# A checker is function(x, arg, call): returns invisibly or aborts with class "deriva_error_invalid_param".
 
 abort_param <- function(arg, expected, x, call) {
   got <- if (is.atomic(x) && length(x) == 1) {
@@ -55,8 +53,7 @@ p_flag <- function() {
   }
 }
 
-# Joint constraints (registry slot `constraint`): function(params) returning
-# NULL when satisfied, or a one-line description of the violation.
+# A constraint is function(params): NULL when satisfied, else a one-line description of the violation.
 c_order <- function(lo, hi, strict = FALSE) {
   force(lo); force(hi); force(strict)
   function(p) {
