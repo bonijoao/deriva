@@ -18,6 +18,8 @@
 * `tidy()`, `glance()` and `print()` report running totals stored in the
   fitted object, so they stay exact when the history is truncated.
 * Fitted detectors saved with deriva 0.1.0 must be refit.
+* deriva now declares `Depends: R (>= 4.1)` and imports `utils`, which
+  `"kswin"` already used.
 
 # deriva 0.1.0
 
