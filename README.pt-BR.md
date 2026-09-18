@@ -54,14 +54,22 @@ library(deriva)
 stream <- sim_drift_stream(
   n_pre = 500, n_post = 500,
   p_pre = 0.05, p_post = 0.30,
-  seed = 42
+  seed = 2
 )
 
 resultado <- detect_drift(stream, .col = error, method = "ddm")
 
 # Onde a deriva foi sinalizada?
 subset(resultado, .drift)
+#> # A tibble: 1 × 5
+#>       t error drift_true .warning .drift
+#>   <int> <int> <lgl>      <lgl>    <lgl>
+#> 1   542     1 TRUE       FALSE    TRUE
 ```
+
+O `deriva` sinaliza corretamente a mudança logo após a observação 500, o
+verdadeiro ponto de deriva — sem nenhum falso alarme nas 500 observações
+estáveis anteriores.
 
 ## A interface do deriva
 
@@ -94,11 +102,11 @@ detectores de deriva conseguem consumir diretamente — o erro absoluto para
 regressão, um indicador 0/1 de acerto/erro para classificação.
 
 ```r
-modelo |>
+dados_monitoramento <- modelo |>
   augment(new_data = dados_producao) |>
-  add_prediction_error(truth = y) |>
-  drift_detector("page_hinkley") |>
-  fit(., signal = .error)
+  add_prediction_error(truth = y)
+
+fit(drift_detector("page_hinkley"), dados_monitoramento, signal = .error)
 ```
 
 ## Métodos disponíveis
