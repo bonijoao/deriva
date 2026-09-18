@@ -20,6 +20,10 @@
 * Fitted detectors saved with deriva 0.1.0 must be refit.
 * deriva now declares `Depends: R (>= 4.1)` and imports `utils`, which
   `"kswin"` already used.
+* Two reference datasets ship with the package, `credit_monitoring` and
+  `sensor_monitoring`, and the vignettes ("Getting Started with deriva",
+  and the new "Distribution-Based Drift Detection") now walk through them
+  instead of generating data inline.
 
 # deriva 0.1.0
 
