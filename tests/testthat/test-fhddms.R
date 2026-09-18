@@ -4,7 +4,7 @@ run_fhddms <- function(x, ...) {
   run_engine(m, m$init(params), x)
 }
 
-test_that("fhddms registered with defaults; FALSE while window fills", {
+test_that("fhddms registered with defaults; NA while window fills", {
   m <- drift_method("fhddms")
   expect_identical(m$signal_type, "error")
   expect_identical(m$params$window_size, 100)

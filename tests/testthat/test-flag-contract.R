@@ -33,3 +33,23 @@ test_that("warm-up ends where each algorithm first evaluates", {
     expect_identical(which(!is.na(d))[[1]], as.integer(first_evaluated[[m]]), label = m)
   }
 })
+
+test_that("the warm-up after a detected drift is NA again", {
+  for (m in setdiff(names(the$methods), no_warm_up)) {
+    r <- run_on_bundled(m)
+    hits <- which(r$.drift)
+    expect_gt(length(hits), 0)
+    after <- hits[hits < nrow(r)] + 1
+    expect_true(all(is.na(r$.drift[after])), label = paste(m, "re-warms after drift"))
+  }
+})
+
+test_that("a detector with no warm-up keeps evaluating right after a drift", {
+  for (m in no_warm_up) {
+    r <- run_on_bundled(m)
+    after <- which(r$.drift) + 1
+    after <- after[after <= nrow(r)]
+    expect_gt(length(after), 0)
+    expect_false(any(is.na(r$.drift[after])), label = m)
+  }
+})
