@@ -10,8 +10,8 @@ test_that("seed registered as a distribution method with defaults", {
   expect_identical(m$params$delta, 0.05)
   expect_identical(m$params$block_size, 32)
   expect_identical(m$params$epsilon_prime, 0.01)
-  expect_identical(m$params$alpha, 0.8)
   expect_identical(m$params$compression_term, 75)
+  expect_named(m$params, c("delta", "block_size", "epsilon_prime", "compression_term"))
 })
 
 test_that("seed warning is all NA and the first two blocks are NA", {
@@ -38,4 +38,8 @@ test_that("seed keeps few detections on a stationary stream", {
   set.seed(7); x <- stats::rbinom(2000, 1, 0.2)
   out <- run_seed(x)
   expect_lt(length(which(out$signals$.drift)), 5)
+})
+
+test_that("seed no longer accepts the alpha it never used", {
+  expect_error(drift_detector("seed", alpha = 0.8), "alpha")
 })

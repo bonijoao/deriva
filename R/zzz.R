@@ -276,9 +276,9 @@
     step = seed_step,
     signal_type = "distribution",
     params = list(delta = 0.05, block_size = 32, epsilon_prime = 0.01,
-                  alpha = 0.8, compression_term = 75),
+                  compression_term = 75),
     checks = list(delta = p_prob(), block_size = p_whole(),
-                  epsilon_prime = p_number(0), alpha = p_number(0, 1),
+                  epsilon_prime = p_number(0),
                   compression_term = p_whole(min = 0)),
     meta = list(
       full_name = "SEED (block-based adaptive windowing)",
