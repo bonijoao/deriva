@@ -209,6 +209,7 @@
     signal_type = "error",
     params = list(window_size = 100, delta = 1e-6, r = 1.01),
     checks = list(window_size = p_whole(), delta = p_prob(), r = p_number(1)),
+    constraint = function(p) if (!is.finite(p$r^(p$window_size - 1))) sprintf("`r` (%s) overflows the weights for `window_size` (%s); use a smaller `r`.", format(p$r), format(p$window_size)),
     meta = list(full_name = "McDiarmid DDM (Geometric)", reference = mddm_reference)
   )
   register_drift_method(
@@ -218,6 +219,7 @@
     signal_type = "error",
     params = list(window_size = 100, delta = 1e-6, lambda = 0.01),
     checks = list(window_size = p_whole(), delta = p_prob(), lambda = p_number(0)),
+    constraint = function(p) if (!is.finite(exp(p$lambda * (p$window_size - 1)))) sprintf("`lambda` (%s) overflows the weights for `window_size` (%s); use a smaller `lambda`.", format(p$lambda), format(p$window_size)),
     meta = list(full_name = "McDiarmid DDM (Euler)", reference = mddm_reference)
   )
   fisher_reference <- "de Lima Cabral & de Barros (2018). Concept drift detection based on Fisher's Exact test. Information Sciences 442-443."

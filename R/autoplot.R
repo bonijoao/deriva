@@ -3,8 +3,9 @@
 #' Plots the running mean of the signal over the retained history (see `keep`
 #' in [drift_detector()]), with the
 #' baseline/stream boundary (labelled "training ends"), warning points
-#' (orange) and drift points (red vertical lines, the first one labelled
-#' with its index). Requires ggplot2 (Suggests).
+#' (orange) and drift points (red vertical lines; the first drift within
+#' the retained history is labelled with its index). Requires ggplot2
+#' (Suggests).
 #'
 #' @param object A `drift_detector_fit`.
 #' @param ... Not used.
@@ -62,12 +63,17 @@ autoplot.drift_detector_fit <- function(object, ...) {
   }
   if (any(df$drift)) {
     first_drift <- df$index[df$drift][1]
+    drift_label <- if (!identical(object$drifts$index[[1]], first_drift)) {
+      paste0("first shown drift at t=", first_drift)
+    } else {
+      paste0("drift at t=", first_drift)
+    }
     p <- p +
       ggplot2::geom_vline(
         xintercept = df$index[df$drift], colour = drift_col, alpha = 0.55, linewidth = 0.5
       ) +
       ggplot2::annotate(
-        "text", x = first_drift, y = Inf, label = paste0("drift at t=", first_drift),
+        "text", x = first_drift, y = Inf, label = drift_label,
         vjust = 3.1, hjust = -0.05, size = 3, colour = drift_col, fontface = "bold"
       )
   }
@@ -81,7 +87,11 @@ autoplot.drift_detector_fit <- function(object, ...) {
         if (offset > 0) sprintf(" | last %d shown", nrow(h)) else ""
       ),
       x = "observation",
-      y = paste0("running mean of `", object$signal_col, "`"),
+      y = if (offset > 0) {
+        paste0("running mean of last ", nrow(h), " `", object$signal_col, "`")
+      } else {
+        paste0("running mean of `", object$signal_col, "`")
+      },
       caption = "orange = warning     |     red = confirmed drift"
     ) +
     ggplot2::theme_minimal(base_size = 11, base_family = "sans") +

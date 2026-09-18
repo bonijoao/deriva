@@ -29,6 +29,9 @@ test_that("a fit serialised by deriva 0.1.0 fails loudly", {
   f$counts <- NULL
   expect_error(advance(f, sim_drift_stream(n_pre = 0, n_post = 5, seed = 1)), "Refit")
   expect_error(glance(f), "Refit")
+  expect_error(augment(f), "Refit")
+  expect_error(tidy(f), "Refit")
+  expect_error(print(f), "Refit")
 })
 
 test_that("keep defaults to 10000 and is validated", {
@@ -95,4 +98,21 @@ test_that("autoplot() uses absolute positions on a truncated history", {
   expect_s3_class(p, "ggplot")
   expect_equal(range(p$data$index), c(551, 600))
   expect_error(ggplot2::autoplot(suppressWarnings(drifted_fit(keep = 0))), "keep = 0")
+})
+
+test_that("autoplot()'s y-axis label is honest about a truncated history", {
+  skip_if_not_installed("ggplot2")
+  p_trunc <- ggplot2::autoplot(drifted_fit(keep = 50))
+  expect_match(p_trunc$labels$y, "last 50")
+  p_full <- ggplot2::autoplot(drifted_fit())
+  expect_no_match(p_full$labels$y, "last")
+})
+
+test_that("a spec created by deriva 0.1.0 fails loudly at fit()", {
+  spec <- drift_detector("ddm")
+  spec$keep <- NULL
+  expect_error(
+    fit(spec, sim_drift_stream(n_pre = 50, n_post = 0, seed = 1), signal = error),
+    "Recreate"
+  )
 })

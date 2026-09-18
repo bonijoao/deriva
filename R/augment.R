@@ -20,6 +20,7 @@ generics::augment
 #' f0 <- fit(drift_detector("ddm"), base, signal = error)
 #' augment(f0)
 augment.drift_detector_fit <- function(x, new_data = NULL, ...) {
+  check_fit_version(x)
   if (is.null(new_data)) {
     return(x$history)
   }

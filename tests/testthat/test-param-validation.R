@@ -49,3 +49,10 @@ test_that("method must be a single string", {
   expect_error(drift_detector(data.frame(x = 1)), "`method` must be a single string")
   expect_error(drift_detector(c("ddm", "eddm")), "`method` must be a single string")
 })
+
+test_that("mddm_g and mddm_e reject values that overflow the weights", {
+  expect_error(drift_detector("mddm_g", r = 1e5), class = "deriva_error_invalid_param")
+  expect_error(drift_detector("mddm_e", lambda = 1000), class = "deriva_error_invalid_param")
+  expect_no_error(drift_detector("mddm_g"))
+  expect_no_error(drift_detector("mddm_e"))
+})

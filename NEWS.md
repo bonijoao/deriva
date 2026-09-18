@@ -3,7 +3,8 @@
 * Hyperparameter values are now validated when the detector is specified.
   Out-of-range values, wrong types and impossible combinations (e.g. `"kswin"`
   with `window_size < stat_size + 2`) abort with a clear message instead of
-  running and returning silently wrong flags.
+  running and returning silently wrong flags. `drift_detector()` also rejects
+  a `method` that is not a single string.
 * `drift_detector()` gains `seed`: the stochastic detectors (`"kswin"`,
   `"seqdrift2"`) draw from a private random stream carried inside the fitted
   object. Results are reproducible, independent of batching, and the session's
@@ -11,7 +12,9 @@
 * `drift_detector()` gains `keep` (default `10000`), the number of most recent
   rows retained in the history. This bounds memory and removes the quadratic
   cost of row-by-row `advance()`. **Behaviour change:** histories longer than
-  10000 rows are now truncated; use `keep = Inf` for the previous behaviour.
+  10000 rows are now truncated, so `augment()` on a fitted detector returns
+  at most the last `keep` rows; use `keep = Inf` for the previous behaviour.
+  `keep = Inf` and `keep = 0` emit a warning when the detector is specified.
 * `tidy()`, `glance()` and `print()` report running totals stored in the
   fitted object, so they stay exact when the history is truncated.
 * Fitted detectors saved with deriva 0.1.0 must be refit.

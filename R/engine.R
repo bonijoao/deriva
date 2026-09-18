@@ -30,6 +30,7 @@ run_engine_rng <- function(method, state, signal, rng = NULL) {
   if (is.null(rng)) {
     return(c(run_engine(method, state, signal), list(rng = NULL)))
   }
+  # .Random.seed exists only in globalenv; the alias avoids R CMD check's global-assignment NOTE and with_preserve_seed() restores the caller's.
   genv <- globalenv()
   withr::with_preserve_seed({
     assign(".Random.seed", rng, envir = genv)

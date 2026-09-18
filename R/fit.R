@@ -70,6 +70,12 @@ check_fit_version <- function(object, call = rlang::caller_env()) {
 #' base <- sim_drift_stream(n_pre = 100, n_post = 0, seed = 1)
 #' fit(drift_detector("ddm"), base, signal = error)
 fit.drift_detector <- function(object, data, signal, ...) {
+  if (is.null(object$keep)) {
+    cli::cli_abort(
+      c("This detector specification was created by deriva 0.1.0 and lacks {.arg keep}.",
+        "i" = "Recreate it with {.fn drift_detector}.")
+    )
+  }
   col <- rlang::as_name(rlang::ensym(signal))
   x <- validate_signal(data, col, object)
   m <- drift_method(object$method)

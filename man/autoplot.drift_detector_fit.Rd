@@ -18,6 +18,7 @@ A ggplot object.
 Plots the running mean of the signal over the retained history (see \code{keep}
 in \code{\link[=drift_detector]{drift_detector()}}), with the
 baseline/stream boundary (labelled "training ends"), warning points
-(orange) and drift points (red vertical lines, the first one labelled
-with its index). Requires ggplot2 (Suggests).
+(orange) and drift points (red vertical lines; the first drift within
+the retained history is labelled with its index). Requires ggplot2
+(Suggests).
 }
