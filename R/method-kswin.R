@@ -5,11 +5,6 @@
 # reproducibility. No warning level -> signal$warning is always NA.
 
 kswin_init <- function(params) {
-  if (params$window_size <= params$stat_size) {
-    cli::cli_abort(
-      "{.arg window_size} ({params$window_size}) must be greater than {.arg stat_size} ({params$stat_size})."
-    )
-  }
   list(params = params, window = numeric(0))
 }
 

@@ -3,15 +3,20 @@
 the <- new.env(parent = emptyenv())
 the$methods <- list()
 
-register_drift_method <- function(name, init, step, signal_type, params, meta) {
+register_drift_method <- function(name, init, step, signal_type, params, checks,
+                                  meta, constraint = NULL) {
   stopifnot(is.character(name), length(name) == 1)
   stopifnot(is.function(init), is.function(step))
   if (!signal_type %in% c("error", "distribution")) {
     cli::cli_abort("{.arg signal_type} must be \"error\" or \"distribution\", not {.val {signal_type}}.")
   }
+  if (!setequal(names(checks), names(params)) || anyDuplicated(names(params))) {
+    cli::cli_abort("Method {.val {name}}: every entry of {.arg params} needs exactly one entry in {.arg checks}.")
+  }
+  stopifnot(is.null(constraint) || is.function(constraint))
   the$methods[[name]] <- list(
-    name = name, init = init, step = step,
-    signal_type = signal_type, params = params, meta = meta
+    name = name, init = init, step = step, signal_type = signal_type,
+    params = params, checks = checks, constraint = constraint, meta = meta
   )
   invisible(name)
 }

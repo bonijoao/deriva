@@ -32,10 +32,8 @@ test_that("kswin detects a distribution shift after the change point", {
   expect_true(any(drifts > 500))                 # detects the shift
 })
 
-test_that("kswin init validates window_size > stat_size", {
-  m <- drift_method("kswin")
-  expect_error(m$init(list(alpha = 0.005, window_size = 20, stat_size = 30)),
-               "window_size")
+test_that("kswin rejects a window too small for its sub-sample", {
+  expect_error(drift_detector("kswin", window_size = 20, stat_size = 30), "window_size")
 })
 
 test_that("kswin is reproducible under a fixed seed", {

@@ -5,13 +5,20 @@
 #'
 #' @param method Name of a registered detection method, e.g. `"ddm"`.
 #' @param ... Method hyperparameters overriding the defaults (e.g.
-#'   `min_instances = 50` for `"ddm"`). Unknown parameters error.
+#'   `min_instances = 50` for `"ddm"`). Unknown parameters and values
+#'   outside a parameter's valid range error.
 #'
 #' @return A `drift_detector` specification object.
 #' @export
 #' @examples
 #' drift_detector("ddm", min_instances = 50)
 drift_detector <- function(method = "ddm", ...) {
+  if (!(is.character(method) && length(method) == 1 && !is.na(method))) {
+    cli::cli_abort(
+      c("{.arg method} must be a single string naming a registered method.",
+        "i" = "Hyperparameters go in {.arg ...}, e.g. {.code drift_detector(\"ddm\", min_instances = 50)}.")
+    )
+  }
   m <- drift_method(method)
   user <- rlang::list2(...)
   unknown <- setdiff(names(user), names(m$params))
@@ -22,7 +29,9 @@ drift_detector <- function(method = "ddm", ...) {
     )
   }
   params <- m$params
-  params[names(user)] <- user
+  # `[<-` with list() keeps a NULL value so the checker can reject it
+  for (nm in names(user)) params[nm] <- list(user[[nm]])
+  validate_params(m, params)
   structure(
     list(method = method, params = params),
     class = "drift_detector"
