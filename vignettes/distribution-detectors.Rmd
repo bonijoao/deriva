@@ -44,7 +44,7 @@ result <- detect_drift(sensor_monitoring, .col = value, method = "kswin", seed =
 subset(result, .drift)
 ```
 
-No detection fires in the 500 stable observations. Unlike DDM, which settles into a new stable state after one detection, KSWIN keeps comparing windows as they slide past the change point — so it fires **several times** while its window catches up to the new distribution, not just once. That is expected behaviour for a windowed method, not noise: every one of these detections comes after the true drift point, and the gaps between them shrink as the window fully absorbs the new distribution.
+No detection fires in the 500 stable observations. Unlike DDM, which settles into a new stable state after one detection, KSWIN keeps comparing windows as they slide past the change point — so it fires **several times** while its window catches up to the new distribution, not just once. That is expected behaviour for a windowed method, not noise: every one of these detections comes after the true drift point, as the window repeatedly re-compares against the now-shifted data.
 
 ## Other distribution-based methods
 
