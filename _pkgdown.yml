@@ -33,6 +33,12 @@ reference:
   - sim_drift_stream
   - sim_dist_stream
 
+- title: Reference datasets
+  desc: Frozen example streams used by the vignettes.
+  contents:
+  - credit_monitoring
+  - sensor_monitoring
+
 - title: Package
   contents:
   - deriva-package

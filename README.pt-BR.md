@@ -68,7 +68,7 @@ subset(resultado, .drift)
 ```
 
 O `deriva` sinaliza corretamente a mudança logo após a observação 500, o
-verdadeiro ponto de deriva — sem nenhum falso alarme nas 500 observações
+verdadeiro ponto de deriva — sem nenhuma detecção de deriva falsa nas 500 observações
 estáveis anteriores.
 
 ## A interface do deriva

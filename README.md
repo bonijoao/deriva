@@ -66,7 +66,7 @@ subset(result, .drift)
 ```
 
 `deriva` correctly flags the change shortly after observation 500, the true
-drift point — with no false alarms in the 500 stable observations before it.
+drift point — with no false drift detections in the 500 stable observations before it.
 
 ## The deriva interface
 

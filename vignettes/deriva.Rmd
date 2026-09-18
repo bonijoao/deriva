@@ -46,7 +46,7 @@ result <- detect_drift(credit_monitoring, .col = error, method = "ddm")
 subset(result, .drift)
 ```
 
-The detector correctly identifies the distributional change shortly after the known drift point (observation 500), with no false alarms in the 500 stable observations before it.
+The detector correctly identifies the distributional change shortly after the known drift point (observation 500), with no false drift detections in the 500 stable observations before it.
 
 ## The deriva interface
 
