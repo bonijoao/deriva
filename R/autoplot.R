@@ -1,6 +1,7 @@
 #' Plot the monitored signal with drift markings
 #'
-#' Plots the running mean of the signal over the full history, with the
+#' Plots the running mean of the signal over the retained history (see `keep`
+#' in [drift_detector()]), with the
 #' baseline/stream boundary (labelled "training ends"), warning points
 #' (orange) and drift points (red vertical lines, the first one labelled
 #' with its index). Requires ggplot2 (Suggests).
@@ -11,15 +12,23 @@
 #' @exportS3Method ggplot2::autoplot
 autoplot.drift_detector_fit <- function(object, ...) {
   rlang::check_installed("ggplot2", reason = "to use `autoplot()`.")
+  check_fit_version(object)
   h <- object$history
+  if (nrow(h) == 0) {
+    cli::cli_abort(
+      c("Nothing to plot: this detector keeps no history ({.code keep = 0}).",
+        "i" = "Use {.fn glance} and {.fn tidy} for the totals.")
+    )
+  }
+  offset <- object$counts$n_obs - nrow(h)
   df <- tibble::tibble(
-    index = seq_len(nrow(h)),
+    index = offset + seq_len(nrow(h)),
     signal = as.numeric(h[[object$signal_col]]),
     warning = !is.na(h$.warning) & h$.warning,
     drift = !is.na(h$.drift) & h$.drift
   )
-  df$running_mean <- cumsum(df$signal) / df$index
-  n_baseline <- sum(h$.phase == "baseline")
+  df$running_mean <- cumsum(df$signal) / seq_len(nrow(h))
+  n_baseline <- object$counts$n_baseline
 
   # Fixed status colours (never themed): orange = warning, red = drift.
   # `series` is deriva's own identity colour -- a violet, deliberately not
@@ -37,7 +46,7 @@ autoplot.drift_detector_fit <- function(object, ...) {
   p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$index, y = .data$running_mean)) +
     ggplot2::geom_line(colour = series, linewidth = 0.4)
 
-  if (n_baseline > 0) {
+  if (n_baseline > offset) {
     p <- p +
       ggplot2::geom_vline(xintercept = n_baseline, linetype = "dotted", colour = divider) +
       ggplot2::annotate(
@@ -66,9 +75,10 @@ autoplot.drift_detector_fit <- function(object, ...) {
   p +
     ggplot2::labs(
       title = paste0("Drift monitoring (", object$spec$method, ")"),
-      subtitle = sprintf(
-        "%d observations | %d warning(s) | %d drift(s) detected",
-        nrow(df), sum(df$warning), sum(df$drift)
+      subtitle = paste0(
+        sprintf("%d observations | %d warning(s) | %d drift(s) detected",
+                object$counts$n_obs, object$counts$n_warning, nrow(object$drifts)),
+        if (offset > 0) sprintf(" | last %d shown", nrow(h)) else ""
       ),
       x = "observation",
       y = paste0("running mean of `", object$signal_col, "`"),

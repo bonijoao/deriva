@@ -2,9 +2,9 @@
 #'
 #' Feeds a new batch of observations (any size, including 1 — stream mode)
 #' to the detector and returns a NEW fitted object with the engine state
-#' advanced and the annotated batch appended to the history. The original
-#' object is not modified. This is the only way to persist state; see
-#' [augment()] for a read-only preview.
+#' advanced and the annotated batch appended to the history (truncated to the
+#' last `keep` rows of the spec). The original object is not modified. This
+#' is the only way to persist state; see [augment()] for a read-only preview.
 #'
 #' Why not `update()`: in the tidymodels ecosystem `update()` on a spec
 #' means "change hyperparameters", so deriva defines its own verb.
@@ -36,7 +36,7 @@ advance.drift_detector_fit <- function(object, new_data, ...) {
     spec = object$spec,
     state = out$state,
     signal_col = object$signal_col,
-    history = vctrs::vec_rbind(object$history, batch),
+    history = trim_history(vctrs::vec_rbind(object$history, batch), object$spec$keep),
     counts = tallies$counts,
     drifts = tallies$drifts,
     rng = out$rng

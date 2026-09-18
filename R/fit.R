@@ -35,6 +35,12 @@ update_tallies <- function(counts, drifts, signals, phase) {
   )
 }
 
+trim_history <- function(history, keep) {
+  n <- nrow(history)
+  if (n <= keep) return(history)
+  vctrs::vec_slice(history, seq.int(n - keep + 1, length.out = keep))
+}
+
 check_fit_version <- function(object, call = rlang::caller_env()) {
   if (is.null(object$counts)) {
     cli::cli_abort(
@@ -74,7 +80,7 @@ fit.drift_detector <- function(object, data, signal, ...) {
     spec = object,
     state = out$state,
     signal_col = col,
-    history = annotate(data, out$signals, phase = "baseline"),
+    history = trim_history(annotate(data, out$signals, phase = "baseline"), object$keep),
     counts = tallies$counts,
     drifts = tallies$drifts,
     rng = out$rng
@@ -89,5 +95,8 @@ print.drift_detector_fit <- function(x, ...) {
       " (", x$counts$n_baseline, " baseline)\n", sep = "")
   cat("  warnings: ", x$counts$n_warning,
       " | drifts: ", nrow(x$drifts), "\n", sep = "")
+  if (nrow(x$history) < x$counts$n_obs) {
+    cat("  history: last ", nrow(x$history), " rows kept\n", sep = "")
+  }
   invisible(x)
 }
