@@ -1,5 +1,18 @@
 # deriva (development version)
 
+* `.warning` and `.drift` now follow one contract across all 22 detectors:
+  `NA` means the detector did not evaluate that observation (warm-up), `FALSE`
+  that it evaluated and did not fire. **Behaviour change:** `"kswin"`,
+  `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddm"`, `"fhddms"` and the `"mddm_*"`
+  detectors used to report `FALSE` while warming up and now report `NA`;
+  `"fhddms"` and `"mddm_*"`, which have no warning level, now give
+  `.warning = NA`. Detections themselves are unchanged.
+* `"seed"` no longer has an `alpha` hyperparameter: the algorithm never read it.
+* `fit()`, `advance()`, `augment()` and `detect_drift()` now refuse data that
+  already has a `.warning`, `.drift` or `.phase` column instead of overwriting
+  it, and `advance()` refuses a batch whose columns differ from the baseline's.
+* `"wstd"`, `"ftdd"`, `"fpdd"` and `"fsdd"` are much faster: their per-observation
+  tests use closed forms that give identical p-values.
 * Hyperparameter values are now validated when the detector is specified.
   Out-of-range values, wrong types and impossible combinations (e.g. `"kswin"`
   with `window_size < stat_size + 2`) abort with a clear message instead of

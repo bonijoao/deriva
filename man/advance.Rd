@@ -15,7 +15,9 @@ advance(object, ...)
 \item{...}{Passed to methods.}
 
 \item{new_data}{A data frame with the new batch, in temporal order,
-containing the same signal column used in \code{\link[=fit]{fit()}}.}
+containing the same signal column used in \code{\link[=fit]{fit()}}. It must have the same
+columns as the data given to \code{\link[=fit]{fit()}}; deriva's own columns (\code{.warning},
+\code{.drift}, \code{.phase}) must not be present.}
 }
 \value{
 A new \code{drift_detector_fit}.
