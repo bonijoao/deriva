@@ -1,8 +1,9 @@
 # deriva (development version)
 
 * `.warning` and `.drift` now follow one contract across all 22 detectors:
-  `NA` means the detector did not evaluate that observation (warm-up), `FALSE`
-  that it evaluated and did not fire. **Behaviour change:** `"kswin"`,
+  `NA` means the detector cannot judge that observation yet (warm-up), `FALSE`
+  that it is active and has not flagged drift as of that observation.
+  **Behaviour change:** `"kswin"`,
   `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddm"`, `"fhddms"` and the `"mddm_*"`
   detectors used to report `FALSE` while warming up and now report `NA`;
   `"fhddms"` and `"mddm_*"`, which have no warning level, now give

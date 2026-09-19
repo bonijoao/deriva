@@ -21,10 +21,13 @@
 #'
 #' @section Warning and drift flags:
 #' Every detector annotates each observation with `.warning` and `.drift`
-#' under one contract. `NA`: the detector did not evaluate that observation
-#' (it is warming up, which also happens right after a detected drift resets
-#' it). `FALSE`: it evaluated and did not fire. `TRUE`: it fired. Detectors
-#' with no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
+#' under one contract. `NA`: the detector cannot judge this observation yet —
+#' it is warming up, which also happens again right after a detected drift
+#' resets it. `FALSE`: the detector is active and has not flagged drift as of
+#' this observation; note that `"adwin"`, `"seed"` and `"seqdrift2"` run their
+#' test only on a clock or at block boundaries, so between tests they carry
+#' the previous verdict forward. `TRUE`: it flagged drift here. Detectors with
+#' no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
 #' `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddms"`, `"mddm_a"`, `"mddm_g"`,
 #' `"mddm_e"`) always give `.warning = NA`. Use `which(.drift)` or
 #' `dplyr::filter(.drift)`, which skip `NA`; `any(.drift)` needs `na.rm = TRUE`.
@@ -42,6 +45,12 @@ drift_detector <- function(method = "ddm", ..., seed = NULL, keep = 10000) {
   }
   m <- drift_method(method)
   user <- rlang::list2(...)
+  if (length(user) > 0 && !rlang::is_named(user)) {
+    cli::cli_abort(
+      c("Every hyperparameter in {.arg ...} must be named.",
+        "i" = "Valid parameters for method {.val {method}}: {.arg {names(m$params)}}.")
+    )
+  }
   unknown <- setdiff(names(user), names(m$params))
   if (length(unknown) > 0) {
     cli::cli_abort(

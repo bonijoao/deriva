@@ -56,3 +56,9 @@ test_that("mddm_g and mddm_e reject values that overflow the weights", {
   expect_no_error(drift_detector("mddm_g"))
   expect_no_error(drift_detector("mddm_e"))
 })
+
+test_that("an unnamed hyperparameter is refused, not ignored", {
+  expect_error(drift_detector("ddm", 50), "must be named")
+  expect_error(drift_detector("ddm", min_instances = 50, 3), "must be named")
+  expect_no_error(drift_detector("ddm", min_instances = 50))
+})
