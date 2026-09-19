@@ -76,6 +76,7 @@ fit.drift_detector <- function(object, data, signal, ...) {
         "i" = "Recreate it with {.fn drift_detector}.")
     )
   }
+  check_reserved_columns(data, c(".warning", ".drift", ".phase"))
   col <- rlang::as_name(rlang::ensym(signal))
   x <- validate_signal(data, col, object)
   m <- drift_method(object$method)

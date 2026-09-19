@@ -20,6 +20,7 @@
 #' detect_drift(s, .col = error, method = "ddm")
 detect_drift <- function(data, .col, method = "ddm", ...) {
   spec <- drift_detector(method, ...)
+  check_reserved_columns(data, c(".warning", ".drift"))
   col <- rlang::as_name(rlang::ensym(.col))
   x <- validate_signal(data, col, spec)
   m <- drift_method(method)

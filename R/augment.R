@@ -24,6 +24,7 @@ augment.drift_detector_fit <- function(x, new_data = NULL, ...) {
   if (is.null(new_data)) {
     return(x$history)
   }
+  check_reserved_columns(new_data, c(".warning", ".drift"))
   sig <- validate_signal(new_data, x$signal_col, x$spec)
   m <- drift_method(x$spec$method)
   out <- run_engine_rng(m, x$state, sig, x$rng)

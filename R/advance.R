@@ -18,7 +18,9 @@ advance <- function(object, ...) {
 }
 
 #' @param new_data A data frame with the new batch, in temporal order,
-#'   containing the same signal column used in [fit()].
+#'   containing the same signal column used in [fit()]. It must have the same
+#'   columns as the data given to [fit()]; deriva's own columns (`.warning`,
+#'   `.drift`, `.phase`) must not be present.
 #' @rdname advance
 #' @export
 #' @examples
@@ -28,6 +30,8 @@ advance <- function(object, ...) {
 advance.drift_detector_fit <- function(object, new_data, ...) {
   check_fit_version(object)
   x <- validate_signal(new_data, object$signal_col, object$spec)
+  check_reserved_columns(new_data, c(".warning", ".drift", ".phase"))
+  check_batch_columns(object$history, new_data)
   m <- drift_method(object$spec$method)
   out <- run_engine_rng(m, object$state, x, object$rng)
   batch <- annotate(new_data, out$signals, phase = "stream")
