@@ -23,9 +23,8 @@ fisher_family_init <- function(params) {
 fisher_pvalue <- function(r_old, n_old, r_rec, n_rec, p) {
   if (n_old <= 0 || n_rec <= 0) return(1)
   if (r_rec / n_rec <= r_old / n_old) return(1)   # only flag increases
-  # column-major fill: row1 = recent, row2 = older; col1 = errors, col2 = correct
-  tab <- matrix(c(r_rec, r_old, n_rec - r_rec, n_old - r_old), nrow = 2)
-  stats::fisher.test(tab, alternative = "greater")$p.value
+  stats::phyper(r_rec - 1, r_rec + r_old, (n_rec - r_rec) + (n_old - r_old), n_rec,
+                lower.tail = FALSE)
 }
 
 # One-sided (recent error rate > older) proportions z-test, optionally with the

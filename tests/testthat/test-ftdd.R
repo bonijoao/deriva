@@ -30,3 +30,17 @@ test_that("ftdd emits NA during warm-up", {
   out <- run_ftdd(stats::rbinom(40, 1, 0.1))
   expect_true(all(is.na(out$signals$.drift[1:28])))
 })
+
+test_that("the hypergeometric tail equals fisher.test(alternative = 'greater')", {
+  withr::local_seed(1)
+  for (i in 1:500) {
+    n_rec <- sample(1:40, 1); n_old <- sample(1:400, 1)
+    r_rec <- stats::rbinom(1, n_rec, stats::runif(1))
+    r_old <- stats::rbinom(1, n_old, stats::runif(1))
+    if (r_rec / n_rec <= r_old / n_old) next
+    tab <- matrix(c(r_rec, r_old, n_rec - r_rec, n_old - r_old), nrow = 2)
+    expect_equal(fisher_pvalue(r_old, n_old, r_rec, n_rec, NULL),
+                 stats::fisher.test(tab, alternative = "greater")$p.value,
+                 tolerance = 1e-12)
+  }
+})
