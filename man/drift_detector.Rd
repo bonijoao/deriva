@@ -11,7 +11,10 @@ drift_detector(method = "ddm", ..., seed = NULL, keep = 10000)
 
 \item{...}{Method hyperparameters overriding the defaults (e.g.
 \code{min_instances = 50} for \code{"ddm"}). Unknown parameters and values
-outside a parameter's valid range error.}
+outside a parameter's valid range error. A few hyperparameters are
+thresholds on the signal's own scale rather than dimensionless, notably
+\code{epsilon_prime} for \code{"seed"}, whose default (\code{0.01}) suits a 0/1 error
+stream; on a numeric stream of a different magnitude, scale it to match.}
 
 \item{seed}{\code{NULL} (default) or a single whole number. When set, the
 detector draws from its own private random stream, carried inside the

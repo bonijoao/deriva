@@ -6,7 +6,10 @@
 #' @param method Name of a registered detection method, e.g. `"ddm"`.
 #' @param ... Method hyperparameters overriding the defaults (e.g.
 #'   `min_instances = 50` for `"ddm"`). Unknown parameters and values
-#'   outside a parameter's valid range error.
+#'   outside a parameter's valid range error. A few hyperparameters are
+#'   thresholds on the signal's own scale rather than dimensionless, notably
+#'   `epsilon_prime` for `"seed"`, whose default (`0.01`) suits a 0/1 error
+#'   stream; on a numeric stream of a different magnitude, scale it to match.
 #' @param seed `NULL` (default) or a single whole number. When set, the
 #'   detector draws from its own private random stream, carried inside the
 #'   fitted object: results are reproducible, do not depend on how the stream
