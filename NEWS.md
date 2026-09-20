@@ -1,4 +1,4 @@
-# deriva (development version)
+# deriva 0.2.0
 
 * `.warning` and `.drift` now follow one contract across all 22 detectors:
   `NA` means the detector cannot judge that observation yet (warm-up), `FALSE`
