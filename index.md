@@ -44,18 +44,26 @@ remotes::install_github("bonijoao/deriva")
 
 library(deriva)
 
-# Simulate a stream: 500 stable observations, then 500 with higher error rate
+# Simulate a stream: 500 stable observations, then 500 with a higher error rate
 stream <- sim_drift_stream(
   n_pre = 500, n_post = 500,
   p_pre = 0.05, p_post = 0.30,
-  seed = 42
+  seed = 2
 )
 
 result <- detect_drift(stream, .col = error, method = "ddm")
 
 # Where was drift flagged?
 subset(result, .drift)
+#> # A tibble: 1 × 5
+#>       t error drift_true .warning .drift
+#>   <int> <int> <lgl>      <lgl>    <lgl>
+#> 1   542     1 TRUE       FALSE    TRUE
 ```
+
+`deriva` correctly flags the change shortly after observation 500, the
+true drift point — with no false drift detections in the 500 stable
+observations before it.
 
 ## The deriva interface
 
@@ -98,18 +106,18 @@ regression, a 0/1 mismatch indicator for classification.
 
 ``` r
 
-model |>
+monitoring_data <- model |>
   augment(new_data = production_data) |>
-  add_prediction_error(truth = y) |>
-  drift_detector("page_hinkley") |>
-  fit(., signal = .error)
+  add_prediction_error(truth = y)
+
+fit(drift_detector("page_hinkley"), monitoring_data, signal = .error)
 ```
 
 ## Available methods
 
 | Signal type | Methods |
 |----|----|
-| `"error"` (0/1 or continuous error) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
+| `"error"` (0/1 errors) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
 | `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2` |
 
 Use `drift_detector("<method>")` to inspect the default hyperparameters

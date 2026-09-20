@@ -21,6 +21,30 @@ significantly. The `deriva` package provides a tidy interface to a
 catalogue of 22 such detectors, designed to compose naturally with the
 tidymodels ecosystem.
 
+## The running example: a credit-approval model
+
+This vignette works through `credit_monitoring`, a dataset shipped with
+the package: the per-observation error stream of a credit-approval
+classifier in production.
+
+``` r
+
+head(credit_monitoring)
+#>   t error drift_true
+#> 1 1     0      FALSE
+#> 2 2     0      FALSE
+#> 3 3     0      FALSE
+#> 4 4     0      FALSE
+#> 5 5     0      FALSE
+#> 6 6     0      FALSE
+```
+
+For its first 500 observations the model runs at its expected 5% error
+rate. After observation 500, a shift in the credit market raises the
+error rate to 30% — `drift_true` records this ground truth, which a real
+deployment would not have access to (`deriva`’s job is to infer it from
+`error` alone).
+
 ## Quick start
 
 The one-shot shortcut
@@ -30,25 +54,19 @@ with `.warning` and `.drift` flags.
 
 ``` r
 
-# Simulate a stream: 500 stable observations, then 500 with higher error rate
-stream <- sim_drift_stream(n_pre = 500, n_post = 500,
-                           p_pre = 0.05, p_post = 0.30,
-                           seed = 42)
-
-result <- detect_drift(stream, .col = error, method = "ddm")
+result <- detect_drift(credit_monitoring, .col = error, method = "ddm")
 
 # Where was drift flagged?
 subset(result, .drift)
-#> # A tibble: 3 × 5
+#> # A tibble: 1 × 5
 #>       t error drift_true .warning .drift
 #>   <int> <int> <lgl>      <lgl>    <lgl> 
-#> 1    49     1 FALSE      FALSE    TRUE  
-#> 2   388     1 FALSE      FALSE    TRUE  
-#> 3   512     1 TRUE       FALSE    TRUE
+#> 1   542     1 TRUE       FALSE    TRUE
 ```
 
-The detector correctly identifies the distributional change after the
-known drift point (observation 500).
+The detector correctly identifies the distributional change shortly
+after the known drift point (observation 500), with no false drift
+detections in the 500 stable observations before it.
 
 ## The deriva interface
 
@@ -68,26 +86,28 @@ spec
 #>   min_instances: 30
 #>   warning_level: 2
 #>   out_control_level: 3
+#>   keep: 10000
 ```
 
-Pass method hyperparameters as named arguments. Unknown parameters raise
-an informative error.
+Pass method hyperparameters as named arguments. Unknown parameters, and
+values outside a parameter’s valid range, raise an informative error.
 
 ### 2. Fit on a baseline
 
 [`fit()`](https://generics.r-lib.org/reference/fit.html) runs the
 detector over the **baseline period** — the stable window against which
-future observations are compared.
+future observations are compared. Here, that is the first 500
+observations, before the market shift.
 
 ``` r
 
-baseline <- sim_drift_stream(n_pre = 300, n_post = 0, seed = 1)
+baseline <- credit_monitoring[credit_monitoring$t <= 500, ]
 
 fitted <- fit(spec, baseline, signal = error)
 fitted
 #> Fitted Drift Detector (ddm)
-#>   observations: 300 (300 baseline)
-#>   warnings: 18 | drifts: 3
+#>   observations: 500 (500 baseline)
+#>   warnings: 6 | drifts: 0
 ```
 
 The fitted object is **immutable**: it stores the internal engine state
@@ -102,24 +122,28 @@ The original object is not modified.
 
 ``` r
 
-batch1 <- sim_drift_stream(n_pre = 200, n_post = 0,   seed = 2)
-batch2 <- sim_drift_stream(n_pre = 0,   n_post = 300, p_post = 0.35, seed = 3)
+batch1 <- credit_monitoring[credit_monitoring$t >= 501 & credit_monitoring$t <= 700, ]
+batch2 <- credit_monitoring[credit_monitoring$t >= 701, ]
 
 fitted2 <- advance(fitted,  batch1)
 fitted3 <- advance(fitted2, batch2)
 fitted3
 #> Fitted Drift Detector (ddm)
-#>   observations: 800 (300 baseline)
-#>   warnings: 274 | drifts: 4
+#>   observations: 1000 (500 baseline)
+#>   warnings: 24 | drifts: 1
 ```
 
 Batches can be any size — including a single observation for true
-streaming use.
+streaming use. The market shift (observation 501) falls inside `batch1`;
+`deriva` flags it there, and `batch2` confirms the model has settled
+into its new, worse error rate with no further alarms.
 
 ### 4. Inspect results
 
 **[`augment()`](https://generics.r-lib.org/reference/augment.html)**
-returns the full annotated history as a tibble.
+returns the retained history as a tibble (the last `keep` rows of the
+fitted object — see
+[`?drift_detector`](https://bonijoao.github.io/deriva/reference/drift_detector.md)).
 
 ``` r
 
@@ -128,16 +152,16 @@ tail(history[, c("t", "error", ".phase", ".warning", ".drift")], 10)
 #> # A tibble: 10 × 5
 #>        t error .phase .warning .drift
 #>    <int> <int> <chr>  <lgl>    <lgl> 
-#>  1   291     1 stream FALSE    FALSE 
-#>  2   292     0 stream FALSE    FALSE 
-#>  3   293     0 stream FALSE    FALSE 
-#>  4   294     0 stream FALSE    FALSE 
-#>  5   295     0 stream FALSE    FALSE 
-#>  6   296     0 stream FALSE    FALSE 
-#>  7   297     1 stream FALSE    FALSE 
-#>  8   298     1 stream FALSE    FALSE 
-#>  9   299     1 stream FALSE    FALSE 
-#> 10   300     0 stream FALSE    FALSE
+#>  1   991     0 stream FALSE    FALSE 
+#>  2   992     1 stream FALSE    FALSE 
+#>  3   993     0 stream FALSE    FALSE 
+#>  4   994     0 stream FALSE    FALSE 
+#>  5   995     0 stream FALSE    FALSE 
+#>  6   996     0 stream FALSE    FALSE 
+#>  7   997     0 stream FALSE    FALSE 
+#>  8   998     1 stream FALSE    FALSE 
+#>  9   999     0 stream FALSE    FALSE 
+#> 10  1000     0 stream FALSE    FALSE
 ```
 
 **[`tidy()`](https://generics.r-lib.org/reference/tidy.html)** extracts
@@ -146,13 +170,10 @@ the detected drift points.
 ``` r
 
 tidy(fitted3)
-#> # A tibble: 4 × 2
-#>   index phase   
-#>   <int> <chr>   
-#> 1   111 baseline
-#> 2   219 baseline
-#> 3   293 baseline
-#> 4   530 stream
+#> # A tibble: 1 × 2
+#>   index phase 
+#>   <int> <chr> 
+#> 1   542 stream
 ```
 
 **[`glance()`](https://generics.r-lib.org/reference/glance.html)** gives
@@ -164,7 +185,7 @@ glance(fitted3)
 #> # A tibble: 1 × 5
 #>   method n_obs n_warning n_drift first_drift
 #>   <chr>  <int>     <int>   <int>       <int>
-#> 1 ddm      800       274       4         111
+#> 1 ddm     1000        24       1         542
 ```
 
 **[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)**
@@ -182,7 +203,7 @@ autoplot(fitted3)
 ## Bridging from tidymodels
 
 In a real workflow, the signal column comes from model predictions, not
-a simulation.
+a shipped dataset.
 [`add_prediction_error()`](https://bonijoao.github.io/deriva/reference/add_prediction_error.md)
 converts the output of tidymodels’
 [`augment()`](https://generics.r-lib.org/reference/augment.html) (which
@@ -213,36 +234,28 @@ add_prediction_error(predictions, truth = truth)
 ```
 
 For regression problems, `.error` is the absolute prediction error; for
-classification it is a 0/1 mismatch indicator.
+classification it is a 0/1 mismatch indicator. Chaining straight into
+[`fit()`](https://generics.r-lib.org/reference/fit.html) needs care:
+[`fit()`](https://generics.r-lib.org/reference/fit.html)’s first
+argument is the *spec*, not the data, so build the annotated data first
+and pass the spec and data to
+[`fit()`](https://generics.r-lib.org/reference/fit.html) explicitly:
+
+``` r
+
+monitoring_data <- model |>
+  augment(new_data = production_data) |>
+  add_prediction_error(truth = y)
+
+fit(drift_detector("page_hinkley"), monitoring_data, signal = .error)
+```
 
 ## Distribution-based detectors
 
 Some detectors monitor the distribution of a numeric stream directly,
-without requiring labelled errors. These `signal_type = "distribution"`
-methods (such as `"kswin"` and `"adwin"`) expect a continuous input
-column.
-
-``` r
-
-cont_stream <- sim_dist_stream(
-  n_pre = 500, n_post = 500,
-  mean_pre = 0, mean_post = 2,
-  seed = 99
-)
-
-detect_drift(cont_stream, .col = value, method = "kswin") |>
-  subset(.drift) |>
-  head()
-#> # A tibble: 6 × 5
-#>       t   value drift_true .warning .drift
-#>   <int>   <dbl> <lgl>      <lgl>    <lgl> 
-#> 1   222  2.03   FALSE      NA       TRUE  
-#> 2   374 -1.54   FALSE      NA       TRUE  
-#> 3   491  0.0701 FALSE      NA       TRUE  
-#> 4   561  2.40   TRUE       NA       TRUE  
-#> 5   796  2.31   TRUE       NA       TRUE  
-#> 6   980  3.20   TRUE       NA       TRUE
-```
+without requiring labelled errors — see
+[`vignette("distribution-detectors")`](https://bonijoao.github.io/deriva/articles/distribution-detectors.md)
+for a worked example with `"kswin"`.
 
 ## Available methods
 
@@ -250,7 +263,7 @@ detect_drift(cont_stream, .col = value, method = "kswin") |>
 
 | Signal type | Methods |
 |----|----|
-| `"error"` (0/1 or continuous error) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
+| `"error"` (0/1 errors) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
 | `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2` |
 
 Use `drift_detector("<method>")` to inspect default hyperparameters for

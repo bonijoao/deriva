@@ -9,7 +9,7 @@ spec). Nothing is computed until fit() is called on a baseline period."></head><
 
     <a class="navbar-brand me-2" href="../index.html">deriva</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,10 @@ spec). Nothing is computed until fit() is called on a baseline period."></head><
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/deriva.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/distribution-detectors.html">Distribution-Based Drift Detection</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -43,7 +47,7 @@ spec). Nothing is computed until <code><a href="https://generics.r-lib.org/refer
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">drift_detector</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ddm"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">drift_detector</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ddm"</span>, <span class="va">...</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, keep <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -56,12 +60,49 @@ spec). Nothing is computed until <code><a href="https://generics.r-lib.org/refer
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Method hyperparameters overriding the defaults (e.g.
-<code>min_instances = 50</code> for <code>"ddm"</code>). Unknown parameters error.</p></dd>
+<code>min_instances = 50</code> for <code>"ddm"</code>). Unknown parameters and values
+outside a parameter's valid range error. A few hyperparameters are
+thresholds on the signal's own scale rather than dimensionless, notably
+<code>epsilon_prime</code> for <code>"seed"</code>, whose default (<code>0.01</code>) suits a 0/1 error
+stream; on a numeric stream of a different magnitude, scale it to match.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p><code>NULL</code> (default) or a single whole number. When set, the
+detector draws from its own private random stream, carried inside the
+fitted object: results are reproducible, do not depend on how the stream
+is split into batches, and the session's global RNG is left untouched.
+Only <code>"kswin"</code> and <code>"seqdrift2"</code> are stochastic. With <code>NULL</code> they draw
+from the global RNG, so call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> yourself for reproducibility.</p></dd>
+
+
+<dt id="arg-keep">keep<a class="anchor" aria-label="anchor" href="#arg-keep"></a></dt>
+<dd><p>Number of most recent annotated rows retained in the fitted
+object's history (default <code>10000</code>), bounding memory and the cost of each
+<code><a href="advance.html">advance()</a></code> on long-running streams. Totals in <code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> and drift points
+in <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> are tracked separately and stay exact whatever <code>keep</code> is.
+<code>Inf</code> keeps everything and <code>0</code> keeps nothing; both warn.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>drift_detector</code> specification object.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="warning-and-drift-flags">Warning and drift flags<a class="anchor" aria-label="anchor" href="#warning-and-drift-flags"></a></h2>
+
+
+<p>Every detector annotates each observation with <code>.warning</code> and <code>.drift</code>
+under one contract. <code>NA</code>: the detector cannot judge this observation yet —
+it is warming up, which also happens again right after a detected drift
+resets it. <code>FALSE</code>: the detector is active and has not flagged drift as of
+this observation; note that <code>"adwin"</code>, <code>"seed"</code> and <code>"seqdrift2"</code> run their
+test only on a clock or at block boundaries, so between tests they carry
+the previous verdict forward. <code>TRUE</code>: it flagged drift here. Detectors with
+no warning level (<code>"ewma"</code>, <code>"page_hinkley"</code>, <code>"cusum"</code>, <code>"kswin"</code>,
+<code>"adwin"</code>, <code>"seed"</code>, <code>"seqdrift2"</code>, <code>"fhddms"</code>, <code>"mddm_a"</code>, <code>"mddm_g"</code>,
+<code>"mddm_e"</code>) always give <code>.warning = NA</code>. Use <code>which(.drift)</code> or
+<code>dplyr::filter(.drift)</code>, which skip <code>NA</code>; <code>any(.drift)</code> needs <code>na.rm = TRUE</code>.</p>
     </div>
 
     <div class="section level2">
@@ -71,6 +112,7 @@ spec). Nothing is computed until <code><a href="https://generics.r-lib.org/refer
 <span class="r-out co"><span class="r-pr">#&gt;</span>   min_instances: 50</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   warning_level: 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   out_control_level: 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   keep: 10000</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

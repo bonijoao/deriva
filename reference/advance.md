@@ -2,8 +2,9 @@
 
 Feeds a new batch of observations (any size, including 1 — stream mode)
 to the detector and returns a NEW fitted object with the engine state
-advanced and the annotated batch appended to the history. The original
-object is not modified. This is the only way to persist state; see
+advanced and the annotated batch appended to the history (truncated to
+the last `keep` rows of the spec). The original object is not modified.
+This is the only way to persist state; see
 [`augment()`](https://generics.r-lib.org/reference/augment.html) for a
 read-only preview.
 
@@ -30,7 +31,10 @@ advance(object, new_data, ...)
 
   A data frame with the new batch, in temporal order, containing the
   same signal column used in
-  [`fit()`](https://generics.r-lib.org/reference/fit.html).
+  [`fit()`](https://generics.r-lib.org/reference/fit.html). It must have
+  the same columns as the data given to
+  [`fit()`](https://generics.r-lib.org/reference/fit.html); deriva's own
+  columns (`.warning`, `.drift`, `.phase`) must not be present.
 
 ## Value
 

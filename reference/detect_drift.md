@@ -29,7 +29,7 @@ detect_drift(data, .col, method = "ddm", ...)
 
 - ...:
 
-  Hyperparameters forwarded to
+  Hyperparameters and `seed`, forwarded to
   [`drift_detector()`](https://bonijoao.github.io/deriva/reference/drift_detector.md).
 
 ## Value

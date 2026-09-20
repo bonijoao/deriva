@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">deriva</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,12 @@
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/deriva.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/distribution-detectors.html">Distribution-Based Drift Detection</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -79,29 +85,45 @@ to a catalogue of 22 such detectors, designed to compose naturally with
 the tidymodels ecosystem.</p>
 </div>
 <div class="section level2">
+<h2 id="the-running-example-a-credit-approval-model">The running example: a credit-approval model<a class="anchor" aria-label="anchor" href="#the-running-example-a-credit-approval-model"></a>
+</h2>
+<p>This vignette works through <code>credit_monitoring</code>, a dataset
+shipped with the package: the per-observation error stream of a
+credit-approval classifier in production.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">credit_monitoring</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   t error drift_true</span></span>
+<span><span class="co">#&gt; 1 1     0      FALSE</span></span>
+<span><span class="co">#&gt; 2 2     0      FALSE</span></span>
+<span><span class="co">#&gt; 3 3     0      FALSE</span></span>
+<span><span class="co">#&gt; 4 4     0      FALSE</span></span>
+<span><span class="co">#&gt; 5 5     0      FALSE</span></span>
+<span><span class="co">#&gt; 6 6     0      FALSE</span></span></code></pre></div>
+<p>For its first 500 observations the model runs at its expected 5%
+error rate. After observation 500, a shift in the credit market raises
+the error rate to 30% — <code>drift_true</code> records this ground
+truth, which a real deployment would not have access to
+(<code>deriva</code>’s job is to infer it from <code>error</code>
+alone).</p>
+</div>
+<div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>The one-shot shortcut <code><a href="../reference/detect_drift.html">detect_drift()</a></code> runs a detector
 over an existing column and returns the data annotated with
 <code>.warning</code> and <code>.drift</code> flags.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Simulate a stream: 500 stable observations, then 500 with higher error rate</span></span>
-<span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_drift_stream.html">sim_drift_stream</a></span><span class="op">(</span>n_pre <span class="op">=</span> <span class="fl">500</span>, n_post <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>                           p_pre <span class="op">=</span> <span class="fl">0.05</span>, p_post <span class="op">=</span> <span class="fl">0.30</span>,</span>
-<span>                           seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/detect_drift.html">detect_drift</a></span><span class="op">(</span><span class="va">stream</span>, .col <span class="op">=</span> <span class="va">error</span>, method <span class="op">=</span> <span class="st">"ddm"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/detect_drift.html">detect_drift</a></span><span class="op">(</span><span class="va">credit_monitoring</span>, .col <span class="op">=</span> <span class="va">error</span>, method <span class="op">=</span> <span class="st">"ddm"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Where was drift flagged?</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">result</span>, <span class="va">.drift</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
 <span><span class="co">#&gt;       t error drift_true .warning .drift</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    49     1 FALSE      FALSE    TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>   388     1 FALSE      FALSE    TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>   512     1 TRUE       FALSE    TRUE</span></span></code></pre></div>
-<p>The detector correctly identifies the distributional change after the
-known drift point (observation 500).</p>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   542     1 TRUE       FALSE    TRUE</span></span></code></pre></div>
+<p>The detector correctly identifies the distributional change shortly
+after the known drift point (observation 500), with no false drift
+detections in the 500 stable observations before it.</p>
 </div>
 <div class="section level2">
 <h2 id="the-deriva-interface">The deriva interface<a class="anchor" aria-label="anchor" href="#the-deriva-interface"></a>
@@ -113,30 +135,33 @@ tidymodels: <strong>specify → fit → advance</strong>.</p>
 </h3>
 <p><code><a href="../reference/drift_detector.html">drift_detector()</a></code> creates an inert specification — no
 computation happens here.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/drift_detector.html">drift_detector</a></span><span class="op">(</span><span class="st">"ddm"</span>, min_instances <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="va">spec</span></span>
 <span><span class="co">#&gt; Drift Detector Specification (ddm)</span></span>
 <span><span class="co">#&gt;   min_instances: 30</span></span>
 <span><span class="co">#&gt;   warning_level: 2</span></span>
-<span><span class="co">#&gt;   out_control_level: 3</span></span></code></pre></div>
-<p>Pass method hyperparameters as named arguments. Unknown parameters
-raise an informative error.</p>
+<span><span class="co">#&gt;   out_control_level: 3</span></span>
+<span><span class="co">#&gt;   keep: 10000</span></span></code></pre></div>
+<p>Pass method hyperparameters as named arguments. Unknown parameters,
+and values outside a parameter’s valid range, raise an informative
+error.</p>
 </div>
 <div class="section level3">
 <h3 id="fit-on-a-baseline">2. Fit on a baseline<a class="anchor" aria-label="anchor" href="#fit-on-a-baseline"></a>
 </h3>
 <p><code><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit()</a></code> runs the detector over the <strong>baseline
 period</strong> — the stable window against which future observations
-are compared.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">baseline</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_drift_stream.html">sim_drift_stream</a></span><span class="op">(</span>n_pre <span class="op">=</span> <span class="fl">300</span>, n_post <span class="op">=</span> <span class="fl">0</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+are compared. Here, that is the first 500 observations, before the
+market shift.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">baseline</span> <span class="op">&lt;-</span> <span class="va">credit_monitoring</span><span class="op">[</span><span class="va">credit_monitoring</span><span class="op">$</span><span class="va">t</span> <span class="op">&lt;=</span> <span class="fl">500</span>, <span class="op">]</span></span>
 <span></span>
 <span><span class="va">fitted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="va">spec</span>, <span class="va">baseline</span>, signal <span class="op">=</span> <span class="va">error</span><span class="op">)</span></span>
 <span><span class="va">fitted</span></span>
 <span><span class="co">#&gt; Fitted Drift Detector (ddm)</span></span>
-<span><span class="co">#&gt;   observations: 300 (300 baseline)</span></span>
-<span><span class="co">#&gt;   warnings: 18 | drifts: 3</span></span></code></pre></div>
+<span><span class="co">#&gt;   observations: 500 (500 baseline)</span></span>
+<span><span class="co">#&gt;   warnings: 6 | drifts: 0</span></span></code></pre></div>
 <p>The fitted object is <strong>immutable</strong>: it stores the
 internal engine state after processing the baseline, ready to receive
 new data.</p>
@@ -148,62 +173,63 @@ new data.</p>
 a <strong>new</strong> fitted object with the state updated and the
 annotated batch appended to the history. The original object is not
 modified.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">batch1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_drift_stream.html">sim_drift_stream</a></span><span class="op">(</span>n_pre <span class="op">=</span> <span class="fl">200</span>, n_post <span class="op">=</span> <span class="fl">0</span>,   seed <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">batch2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_drift_stream.html">sim_drift_stream</a></span><span class="op">(</span>n_pre <span class="op">=</span> <span class="fl">0</span>,   n_post <span class="op">=</span> <span class="fl">300</span>, p_post <span class="op">=</span> <span class="fl">0.35</span>, seed <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">batch1</span> <span class="op">&lt;-</span> <span class="va">credit_monitoring</span><span class="op">[</span><span class="va">credit_monitoring</span><span class="op">$</span><span class="va">t</span> <span class="op">&gt;=</span> <span class="fl">501</span> <span class="op">&amp;</span> <span class="va">credit_monitoring</span><span class="op">$</span><span class="va">t</span> <span class="op">&lt;=</span> <span class="fl">700</span>, <span class="op">]</span></span>
+<span><span class="va">batch2</span> <span class="op">&lt;-</span> <span class="va">credit_monitoring</span><span class="op">[</span><span class="va">credit_monitoring</span><span class="op">$</span><span class="va">t</span> <span class="op">&gt;=</span> <span class="fl">701</span>, <span class="op">]</span></span>
 <span></span>
 <span><span class="va">fitted2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/advance.html">advance</a></span><span class="op">(</span><span class="va">fitted</span>,  <span class="va">batch1</span><span class="op">)</span></span>
 <span><span class="va">fitted3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/advance.html">advance</a></span><span class="op">(</span><span class="va">fitted2</span>, <span class="va">batch2</span><span class="op">)</span></span>
 <span><span class="va">fitted3</span></span>
 <span><span class="co">#&gt; Fitted Drift Detector (ddm)</span></span>
-<span><span class="co">#&gt;   observations: 800 (300 baseline)</span></span>
-<span><span class="co">#&gt;   warnings: 274 | drifts: 4</span></span></code></pre></div>
+<span><span class="co">#&gt;   observations: 1000 (500 baseline)</span></span>
+<span><span class="co">#&gt;   warnings: 24 | drifts: 1</span></span></code></pre></div>
 <p>Batches can be any size — including a single observation for true
-streaming use.</p>
+streaming use. The market shift (observation 501) falls inside
+<code>batch1</code>; <code>deriva</code> flags it there, and
+<code>batch2</code> confirms the model has settled into its new, worse
+error rate with no further alarms.</p>
 </div>
 <div class="section level3">
 <h3 id="inspect-results">4. Inspect results<a class="anchor" aria-label="anchor" href="#inspect-results"></a>
 </h3>
-<p><strong><code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code></strong> returns the full annotated
-history as a tibble.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p><strong><code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code></strong> returns the retained history
+as a tibble (the last <code>keep</code> rows of the fitted object — see
+<code><a href="../reference/drift_detector.html">?drift_detector</a></code>).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">history</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">fitted3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">history</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"error"</span>, <span class="st">".phase"</span>, <span class="st">".warning"</span>, <span class="st">".drift"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 5</span></span></span>
 <span><span class="co">#&gt;        t error .phase .warning .drift</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>   291     1 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   292     0 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   293     0 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   294     0 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   295     0 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   296     0 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   297     1 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   298     1 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   299     1 stream FALSE    FALSE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>   300     0 stream FALSE    FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>   991     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   992     1 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   993     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   994     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   995     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   996     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   997     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   998     1 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   999     0 stream FALSE    FALSE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">1</span>000     0 stream FALSE    FALSE</span></span></code></pre></div>
 <p><strong><code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code></strong> extracts the detected drift
 points.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">fitted3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
-<span><span class="co">#&gt;   index phase   </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   111 baseline</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>   219 baseline</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>   293 baseline</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>   530 stream</span></span></code></pre></div>
-<p><strong><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code></strong> gives a one-row summary.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">fitted3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   index phase </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   542 stream</span></span></code></pre></div>
+<p><strong><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code></strong> gives a one-row summary.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">fitted3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
 <span><span class="co">#&gt;   method n_obs n_warning n_drift first_drift</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ddm      800       274       4         111</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ddm     <span style="text-decoration: underline;">1</span>000        24       1         542</span></span></code></pre></div>
 <p><strong><code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code></strong> plots the running mean of
 the signal with warning (orange) and drift (red) markers, and a dotted
 line separating baseline from stream.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">fitted3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="deriva_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="624"></p>
@@ -213,11 +239,11 @@ line separating baseline from stream.</p>
 <h2 id="bridging-from-tidymodels">Bridging from tidymodels<a class="anchor" aria-label="anchor" href="#bridging-from-tidymodels"></a>
 </h2>
 <p>In a real workflow, the signal column comes from model predictions,
-not a simulation. <code><a href="../reference/add_prediction_error.html">add_prediction_error()</a></code> converts the
+not a shipped dataset. <code><a href="../reference/add_prediction_error.html">add_prediction_error()</a></code> converts the
 output of tidymodels’ <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> (which contains truth and
 estimate columns) into a <code>.error</code> column that drift detectors
 can consume.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate tidymodels augment() output for a classifier</span></span>
 <span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  time     <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,</span>
@@ -238,35 +264,25 @@ can consume.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>     7 no    no               0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span>     8 yes   yes              0</span></span></code></pre></div>
 <p>For regression problems, <code>.error</code> is the absolute
-prediction error; for classification it is a 0/1 mismatch indicator.</p>
+prediction error; for classification it is a 0/1 mismatch indicator.
+Chaining straight into <code><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit()</a></code> needs care:
+<code><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit()</a></code>’s first argument is the <em>spec</em>, not the data,
+so build the annotated data first and pass the spec and data to
+<code><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit()</a></code> explicitly:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">monitoring_data</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">production_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_prediction_error.html">add_prediction_error</a></span><span class="op">(</span>truth <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="fu"><a href="../reference/drift_detector.html">drift_detector</a></span><span class="op">(</span><span class="st">"page_hinkley"</span><span class="op">)</span>, <span class="va">monitoring_data</span>, signal <span class="op">=</span> <span class="va">.error</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="distribution-based-detectors">Distribution-based detectors<a class="anchor" aria-label="anchor" href="#distribution-based-detectors"></a>
 </h2>
 <p>Some detectors monitor the distribution of a numeric stream directly,
-without requiring labelled errors. These
-<code>signal_type = "distribution"</code> methods (such as
-<code>"kswin"</code> and <code>"adwin"</code>) expect a continuous input
-column.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cont_stream</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_dist_stream.html">sim_dist_stream</a></span><span class="op">(</span></span>
-<span>  n_pre <span class="op">=</span> <span class="fl">500</span>, n_post <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  mean_pre <span class="op">=</span> <span class="fl">0</span>, mean_post <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">99</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/detect_drift.html">detect_drift</a></span><span class="op">(</span><span class="va">cont_stream</span>, .col <span class="op">=</span> <span class="va">value</span>, method <span class="op">=</span> <span class="st">"kswin"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">.drift</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
-<span><span class="co">#&gt;       t   value drift_true .warning .drift</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   222  2.03   FALSE      <span style="color: #BB0000;">NA</span>       TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>   374 -<span style="color: #BB0000;">1.54</span>   FALSE      <span style="color: #BB0000;">NA</span>       TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>   491  0.070<span style="text-decoration: underline;">1</span> FALSE      <span style="color: #BB0000;">NA</span>       TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>   561  2.40   TRUE       <span style="color: #BB0000;">NA</span>       TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>   796  2.31   TRUE       <span style="color: #BB0000;">NA</span>       TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>   980  3.20   TRUE       <span style="color: #BB0000;">NA</span>       TRUE</span></span></code></pre></div>
+without requiring labelled errors — see
+<code><a href="../articles/distribution-detectors.html">vignette("distribution-detectors")</a></code> for a worked example
+with <code>"kswin"</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="available-methods">Available methods<a class="anchor" aria-label="anchor" href="#available-methods"></a>
@@ -285,7 +301,7 @@ types.</p>
 <tbody>
 <tr class="odd">
 <td>
-<code>"error"</code> (0/1 or continuous error)</td>
+<code>"error"</code> (0/1 errors)</td>
 <td>
 <code>ddm</code>, <code>eddm</code>, <code>hddm_a</code>,
 <code>hddm_w</code>, <code>ewma</code>, <code>rddm</code>,
@@ -312,7 +328,7 @@ hyperparameters for any method.</p>
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <p>The core <code>deriva</code> workflow is:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/drift_detector.html">drift_detector</a></span><span class="op">(</span><span class="st">"ddm"</span><span class="op">)</span> <span class="op">|&gt;</span>          <span class="co"># specify</span></span>
 <span>  <span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="va">baseline</span>, signal <span class="op">=</span> <span class="va">error</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># learn reference level</span></span>
 <span>  <span class="fu"><a href="../reference/advance.html">advance</a></span><span class="op">(</span><span class="va">new_batch</span><span class="op">)</span>               <span class="co"># update state, persist flags</span></span></code></pre></div>

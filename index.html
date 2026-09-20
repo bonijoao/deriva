@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">deriva</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,12 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/deriva.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/distribution-detectors.html">Distribution-Based Drift Detection</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -73,17 +79,22 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bonijoao/deriva" class="external-link">deriva</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Simulate a stream: 500 stable observations, then 500 with higher error rate</span></span>
+<span><span class="co"># Simulate a stream: 500 stable observations, then 500 with a higher error rate</span></span>
 <span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim_drift_stream.html">sim_drift_stream</a></span><span class="op">(</span></span>
 <span>  n_pre <span class="op">=</span> <span class="fl">500</span>, n_post <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  p_pre <span class="op">=</span> <span class="fl">0.05</span>, p_post <span class="op">=</span> <span class="fl">0.30</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">42</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/detect_drift.html">detect_drift</a></span><span class="op">(</span><span class="va">stream</span>, .col <span class="op">=</span> <span class="va">error</span>, method <span class="op">=</span> <span class="st">"ddm"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Where was drift flagged?</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">result</span>, <span class="va">.drift</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">result</span>, <span class="va">.drift</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 5</span></span>
+<span><span class="co">#&gt;       t error drift_true .warning .drift</span></span>
+<span><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;lgl&gt;      &lt;lgl&gt;    &lt;lgl&gt;</span></span>
+<span><span class="co">#&gt; 1   542     1 TRUE       FALSE    TRUE</span></span></code></pre></div>
+<p><code>deriva</code> correctly flags the change shortly after observation 500, the true drift point — with no false drift detections in the 500 stable observations before it.</p>
 </div>
 <div class="section level2">
 <h2 id="the-deriva-interface">The deriva interface<a class="anchor" aria-label="anchor" href="#the-deriva-interface"></a>
@@ -111,11 +122,11 @@
 </h2>
 <p><code><a href="reference/add_prediction_error.html">add_prediction_error()</a></code> converts the output of a tidymodels <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> call (which holds truth and estimate columns) into an <code>.error</code> column that drift detectors can consume directly — the absolute error for regression, a 0/1 mismatch indicator for classification.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">monitoring_data</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">production_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_prediction_error.html">add_prediction_error</a></span><span class="op">(</span>truth <span class="op">=</span> <span class="va">y</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/drift_detector.html">drift_detector</a></span><span class="op">(</span><span class="st">"page_hinkley"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="va">.</span>, signal <span class="op">=</span> <span class="va">.error</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="reference/add_prediction_error.html">add_prediction_error</a></span><span class="op">(</span>truth <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="fu"><a href="reference/drift_detector.html">drift_detector</a></span><span class="op">(</span><span class="st">"page_hinkley"</span><span class="op">)</span>, <span class="va">monitoring_data</span>, signal <span class="op">=</span> <span class="va">.error</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="available-methods">Available methods<a class="anchor" aria-label="anchor" href="#available-methods"></a>
@@ -132,7 +143,7 @@
 <tbody>
 <tr>
 <td>
-<code>"error"</code> (0/1 or continuous error)</td>
+<code>"error"</code> (0/1 errors)</td>
 <td>
 <code>ddm</code>, <code>eddm</code>, <code>hddm_a</code>, <code>hddm_w</code>, <code>ewma</code>, <code>rddm</code>, <code>stepd</code>, <code>fhddm</code>, <code>fhddms</code>, <code>mddm_a</code>, <code>mddm_e</code>, <code>mddm_g</code>, <code>wstd</code>, <code>ftdd</code>, <code>fpdd</code>, <code>fsdd</code>
 </td>

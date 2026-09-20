@@ -21,5 +21,6 @@ tidy(x, ...)
 
 ## Value
 
-A tibble with one row per detected drift: `index` (position in the
-history) and `phase`.
+A tibble with one row per detected drift: `index` (position since the
+start of the baseline, exact even when the history is truncated by
+`keep`) and `phase`.

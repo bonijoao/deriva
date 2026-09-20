@@ -1,9 +1,9 @@
 # Annotated observations from a fitted drift detector
 
-With `new_data = NULL`, returns the accumulated history (baseline +
-advanced batches) annotated with `.warning`, `.drift` and `.phase`. With
-`new_data`, returns a READ-ONLY preview: the batch annotated from the
-current state, WITHOUT persisting it — use
+With `new_data = NULL`, returns the retained history (the last `keep`
+rows of baseline + advanced batches) annotated with `.warning`, `.drift`
+and `.phase`. With `new_data`, returns a READ-ONLY preview: the batch
+annotated from the current state, WITHOUT persisting it — use
 [`advance()`](https://bonijoao.github.io/deriva/reference/advance.md) to
 persist.
 

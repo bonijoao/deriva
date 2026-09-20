@@ -45,6 +45,15 @@ teaching.
 - [`sim_dist_stream()`](https://bonijoao.github.io/deriva/reference/sim_dist_stream.md)
   : Simulate a continuous stream with a known distribution-shift point
 
+## Reference datasets
+
+Frozen example streams used by the vignettes.
+
+- [`credit_monitoring`](https://bonijoao.github.io/deriva/reference/credit_monitoring.md)
+  : Simulated credit monitoring stream
+- [`sensor_monitoring`](https://bonijoao.github.io/deriva/reference/sensor_monitoring.md)
+  : Simulated sensor monitoring stream
+
 ## Package
 
 - [`deriva`](https://bonijoao.github.io/deriva/reference/deriva-package.md)

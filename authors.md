@@ -18,12 +18,12 @@ Source:
 
 Bonifácio J, Pereira G, Mambelli Fernandes P (2026). *deriva: Tidy Drift
 Detection for Monitored Machine Learning Models*. R package version
-0.1.0, <https://github.com/bonijoao/deriva>.
+0.2.0, <https://github.com/bonijoao/deriva>.
 
     @Manual{,
       title = {deriva: Tidy Drift Detection for Monitored Machine Learning Models},
       author = {João Paulo Assis Bonifácio and Geraldo Magela da Cruz Pereira and Pedro {Mambelli Fernandes}},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.2.0},
       url = {https://github.com/bonijoao/deriva},
     }
