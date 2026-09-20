@@ -29,11 +29,18 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+      # CRAN ships its R 4.6 macOS binaries as zstd under a .tgz name, which
+      # pak cannot extract ("unknown archive type"). use-public-rspm above only
+      # switches the repo on Linux, so point macOS at the same mirror, which
+      # serves plain gzip.
+      - name: Install macOS binaries from Posit Package Manager
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          echo 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))' >> ~/.Rprofile
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          # CRAN ships the R 4.6 macOS binaries as zstd under a .tgz name;
-          # released pak only knows gzip and fails with "unknown archive type".
-          pak-version: devel
           extra-packages: any::rcmdcheck
           needs: check
       - uses: r-lib/actions/check-r-package@v2
