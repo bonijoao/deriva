@@ -3,29 +3,17 @@
 ## Test environments
 
 * Local: Windows 11 x64, R 4.5.3 (`devtools::check(cran = TRUE)`)
-* GitHub Actions: Ubuntu, macOS and Windows on R-release; Ubuntu on R-devel
-  and on R-oldrel-1
-* win-builder (R-devel, R-release)
-<!-- RELEASE TODO: run devtools::check_win_devel() and check_win_release()
-     before submitting, and confirm the spelling NOTE below is the only one. -->
+* GitHub Actions: Ubuntu and Windows on R-release; Ubuntu on R-devel and on
+  R-oldrel-1
+* win-builder: R-devel (2026-09-19 r90572 ucrt) and R-release (4.6.1)
 
 ## R CMD check results
 
-Local (R 4.5.3, Windows): 0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 0 notes
 
-On win-builder, 0.1.0 produced one note, which we expect again:
-
-```
-Possibly misspelled words in DESCRIPTION:
-  ADWIN, DDM, EDDM, EWMA, HDDM, Hinkley, KSWIN, tibbles, ...
-```
-
-These are established acronyms for drift-detection methods (expanded on
-first use in the Description), surnames of the cited authors (Gama,
-Baena-Garcia, Frias-Blanco, Bifet, Gavalda, Raab), mathematical eponyms
-(Hoeffding, Kolmogorov-Smirnov, Page-Hinkley), and the 'tibbles' data
-structure from the tidyverse -- not misspellings. The Description is
-unchanged since 0.1.0, so this is the same note accepted at that release.
+Clean on every environment above. The spelling note that 0.1.0 drew on
+win-builder no longer appears: the acronyms, author surnames and eponyms it
+listed are in `inst/WORDLIST`.
 
 ## This submission
 
