@@ -9,7 +9,7 @@
 # Adapted to deriva's 1=error convention (paper uses 1=correct + max-tracking):
 # tracks the MIN weighted error mean. Drift-only (no warning), like FHDDMS.
 # No external R oracle (datadriftR has no MDDM) -> validated synthetically.
-# Returns FALSE while the window fills (no min_instances; like FHDDM).
+# Returns NA while the window fills (no min_instances; like FHDDM).
 
 # Normalize weights and precompute the McDiarmid epsilon (eq. 6-8 of the paper).
 mddm_setup <- function(w, delta) {
@@ -49,11 +49,11 @@ mddm_step <- function(state, obs) {
   if (length(state$window) >= n) state$window <- state$window[-1]
   state$window <- c(state$window, obs)
   if (length(state$window) < n) {
-    return(list(state = state, signal = list(warning = FALSE, drift = FALSE)))
+    return(list(state = state, signal = list(warning = NA, drift = NA)))
   }
   mu <- sum(state$window * state$weights)        # weighted error mean (sum(v)=1)
   if (mu < state$mu_min) state$mu_min <- mu
   drift <- (mu - state$mu_min) >= state$eps
   state$change_detected <- drift
-  list(state = state, signal = list(warning = FALSE, drift = drift))
+  list(state = state, signal = list(warning = NA, drift = drift))
 }

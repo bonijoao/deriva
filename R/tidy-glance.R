@@ -10,13 +10,13 @@ generics::glance
 #'
 #' @param x A `drift_detector_fit`.
 #' @param ... Not used.
-#' @return A tibble with one row per detected drift: `index` (position in
-#'   the history) and `phase`.
+#' @return A tibble with one row per detected drift: `index` (position since
+#'   the start of the baseline, exact even when the history is truncated by
+#'   `keep`) and `phase`.
 #' @export
 tidy.drift_detector_fit <- function(x, ...) {
-  h <- x$history
-  idx <- which(!is.na(h$.drift) & h$.drift)
-  tibble::tibble(index = idx, phase = h$.phase[idx])
+  check_fit_version(x)
+  x$drifts
 }
 
 #' One-row summary of a fitted detector
@@ -27,13 +27,13 @@ tidy.drift_detector_fit <- function(x, ...) {
 #'   `first_drift` (NA if no drift detected).
 #' @export
 glance.drift_detector_fit <- function(x, ...) {
-  h <- x$history
-  drifts <- which(!is.na(h$.drift) & h$.drift)
+  check_fit_version(x)
+  d <- x$drifts
   tibble::tibble(
     method = x$spec$method,
-    n_obs = nrow(h),
-    n_warning = sum(h$.warning, na.rm = TRUE),
-    n_drift = length(drifts),
-    first_drift = if (length(drifts) > 0) drifts[[1]] else NA_integer_
+    n_obs = x$counts$n_obs,
+    n_warning = x$counts$n_warning,
+    n_drift = nrow(d),
+    first_drift = if (nrow(d) > 0) d$index[[1]] else NA_integer_
   )
 }

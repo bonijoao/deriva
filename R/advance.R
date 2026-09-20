@@ -2,9 +2,9 @@
 #'
 #' Feeds a new batch of observations (any size, including 1 — stream mode)
 #' to the detector and returns a NEW fitted object with the engine state
-#' advanced and the annotated batch appended to the history. The original
-#' object is not modified. This is the only way to persist state; see
-#' [augment()] for a read-only preview.
+#' advanced and the annotated batch appended to the history (truncated to the
+#' last `keep` rows of the spec). The original object is not modified. This
+#' is the only way to persist state; see [augment()] for a read-only preview.
 #'
 #' Why not `update()`: in the tidymodels ecosystem `update()` on a spec
 #' means "change hyperparameters", so deriva defines its own verb.
@@ -18,7 +18,9 @@ advance <- function(object, ...) {
 }
 
 #' @param new_data A data frame with the new batch, in temporal order,
-#'   containing the same signal column used in [fit()].
+#'   containing the same signal column used in [fit()]. It must have the same
+#'   columns as the data given to [fit()]; deriva's own columns (`.warning`,
+#'   `.drift`, `.phase`) must not be present.
 #' @rdname advance
 #' @export
 #' @examples
@@ -26,14 +28,21 @@ advance <- function(object, ...) {
 #' f0 <- fit(drift_detector("ddm"), base, signal = error)
 #' f1 <- advance(f0, sim_drift_stream(n_pre = 0, n_post = 50, seed = 2))
 advance.drift_detector_fit <- function(object, new_data, ...) {
+  check_fit_version(object)
   x <- validate_signal(new_data, object$signal_col, object$spec)
+  check_reserved_columns(new_data, c(".warning", ".drift", ".phase"))
+  check_batch_columns(object$history, new_data)
   m <- drift_method(object$spec$method)
-  out <- run_engine(m, object$state, x)
+  out <- run_engine_rng(m, object$state, x, object$rng)
   batch <- annotate(new_data, out$signals, phase = "stream")
+  tallies <- update_tallies(object$counts, object$drifts, out$signals, "stream")
   new_drift_detector_fit(
     spec = object$spec,
     state = out$state,
     signal_col = object$signal_col,
-    history = vctrs::vec_rbind(object$history, batch)
+    history = trim_history(vctrs::vec_rbind(object$history, batch), object$spec$keep),
+    counts = tallies$counts,
+    drifts = tallies$drifts,
+    rng = out$rng
   )
 }

@@ -13,23 +13,26 @@
 # No external R oracle (datadriftR lacks WSTD) -> validated against synthetic
 # ground truth. Has warning.
 
+# Binary stream: average ranks and the tie term follow from the counts of 0s and 1s, no rank()/table().
+wstd_pvalue_counts <- function(r_rec, n_rec, r_old, n_old) {
+  if (n_rec == 0 || n_old == 0) return(1)
+  N <- n_rec + n_old
+  ones <- r_rec + r_old
+  zeros <- N - ones
+  W <- (n_rec - r_rec) * (zeros + 1) / 2 + r_rec * (zeros + (ones + 1) / 2)
+  mu <- n_rec * (N + 1) / 2
+  tie_term <- if (N > 1) ((zeros^3 - zeros) + (ones^3 - ones)) / (N * (N - 1)) else 0
+  sigma2 <- (n_rec * n_old / 12) * ((N + 1) - tie_term)
+  if (sigma2 <= 0) return(1)
+  z <- (W - mu - 0.5) / sqrt(sigma2)
+  if (z <= 0) return(1)
+  stats::pnorm(z, lower.tail = FALSE)
+}
+
 # One-sided (recent > older) Wilcoxon rank-sum p-value via the tie-corrected
 # normal approximation. Returns 1 (no evidence) when recent is not higher.
 wstd_pvalue <- function(recent, older) {
-  n1 <- length(recent); n2 <- length(older)
-  if (n1 == 0 || n2 == 0) return(1)
-  combined <- c(recent, older)
-  N <- n1 + n2
-  ranks <- rank(combined)                       # average ranks resolve ties
-  W <- sum(ranks[seq_len(n1)])                   # rank sum of the recent group
-  mu <- n1 * (N + 1) / 2
-  tt <- table(combined)
-  tie_term <- if (N > 1) sum(tt^3 - tt) / (N * (N - 1)) else 0
-  sigma2 <- (n1 * n2 / 12) * ((N + 1) - tie_term)
-  if (sigma2 <= 0) return(1)
-  z <- (W - mu - 0.5) / sqrt(sigma2)             # upper tail, continuity-corrected
-  if (z <= 0) return(1)                          # only flag error-rate increases
-  stats::pnorm(z, lower.tail = FALSE)
+  wstd_pvalue_counts(sum(recent), length(recent), sum(older), length(older))
 }
 
 wstd_init <- function(params) {

@@ -3,50 +3,76 @@
 ## Test environments
 
 * Local: Windows 11 x64, R 4.5.3 (`devtools::check(cran = TRUE)`)
-* win-builder (R-devel, 2026-07-22 r90289 ucrt)
+* GitHub Actions: Ubuntu, macOS and Windows on R-release; Ubuntu on R-devel
+  and on R-oldrel-1
+* win-builder (R-devel, R-release)
+<!-- RELEASE TODO: run devtools::check_win_devel() and check_win_release()
+     before submitting, and confirm the spelling NOTE below is the only one. -->
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+Local (R 4.5.3, Windows): 0 errors | 0 warnings | 0 notes
+
+On win-builder, 0.1.0 produced one note, which we expect again:
 
 ```
 Possibly misspelled words in DESCRIPTION:
   ADWIN, DDM, EDDM, EWMA, HDDM, Hinkley, KSWIN, tibbles, ...
 ```
 
-These are established acronyms for drift-detection methods (now expanded on
+These are established acronyms for drift-detection methods (expanded on
 first use in the Description), surnames of the cited authors (Gama,
 Baena-Garcia, Frias-Blanco, Bifet, Gavalda, Raab), mathematical eponyms
 (Hoeffding, Kolmogorov-Smirnov, Page-Hinkley), and the 'tibbles' data
-structure from the tidyverse — not misspellings.
+structure from the tidyverse -- not misspellings. The Description is
+unchanged since 0.1.0, so this is the same note accepted at that release.
 
-## Resubmission
+## This submission
 
-This is a third resubmission, addressing the three points raised by
-Konstanze Lauseker:
+This is an update from 0.1.0 to 0.2.0. It fixes correctness and
+reproducibility problems found by a systematic audit of the 22 detectors
+after the first release, and it introduces four intentional changes in
+behaviour, all documented in NEWS.md:
 
-* **Acronyms explained**: every acronym in the Description (DDM, EDDM,
-  HDDM, EWMA, ADWIN, KSWIN) is now expanded on first use, e.g. "the Drift
-  Detection Method (DDM)".
+* **One `.warning`/`.drift` contract across all detectors.** `NA` now
+  means the detector cannot yet judge that observation (warm-up) and
+  `FALSE` that it is active and has not flagged drift. Seven detectors
+  previously reported `FALSE` while warming up, and the detectors with no
+  warning level previously reported `FALSE` rather than `NA` for
+  `.warning`. The detections themselves are unchanged: a frozen
+  regression fixture over the bundled datasets pins the flagged indices
+  of all 22 detectors and confirms none of them moved.
 
-* **References added**: the methods named in the Description are now cited
-  in the requested `authors (year) <doi:...>` form (Gama et al. 2004;
-  Frias-Blanco et al. 2015; Ross et al. 2012; Bifet and Gavalda 2007;
-  Raab et al. 2020; Page 1954). All six DOIs were verified to resolve to
-  the correct articles. The EDDM paper (Baena-Garcia et al. 2006, IWKDDS
-  workshop) has no DOI or stable publisher URL, so it is cited by authors
-  and year only.
+* **The stored history is bounded.** `drift_detector()` gains
+  `keep` (default `10000`), the number of most recent rows retained.
+  Histories longer than that are now truncated, so `augment()` on a
+  fitted detector returns at most the last `keep` rows; `keep = Inf`
+  restores the previous behaviour. This bounds memory (the history
+  previously grew without limit, ~1.8 GB for 10 million observations) and
+  removes the quadratic cost of row-by-row `advance()`. `tidy()`,
+  `glance()` and `print()` now read running totals stored in the fitted
+  object, so they remain exact when the history is truncated.
 
-* **User options restored**: the vignette (source of `inst/doc/deriva.R`)
-  changed `options(width = 70)` without restoring it. The setup chunk now
-  saves the previous value (`old_options <- options(width = 70)`) and a
-  final chunk restores it (`options(old_options)`). Verified in the
-  freshly built tarball's `inst/doc/deriva.R`.
+* **Invalid input now aborts instead of returning silently wrong
+  results.** Hyperparameter values are validated when the detector is
+  specified; previously only parameter *names* were checked, so e.g.
+  `min_instances = "abc"` ran to completion and returned `NA` flags for
+  the whole stream. `fit()`, `advance()`, `augment()` and
+  `detect_drift()` also refuse data that already has a `.warning`,
+  `.drift` or `.phase` column instead of overwriting it, and `advance()`
+  refuses a batch whose columns differ from the baseline's.
 
-Additionally in this resubmission: a third package author was added to
-`Authors@R`, and minor documentation inconsistencies were corrected. No
-changes to package code or API.
+* **Fitted detectors saved with 0.1.0 must be refit.** Such objects lack
+  the running totals introduced here; they raise a clear error asking for
+  a refit rather than being migrated silently.
+
+Also in this release: a `seed` argument giving the stochastic detectors a
+private random stream (the session's global RNG is no longer advanced),
+closed-form p-values for `"wstd"` and the Fisher detectors (about 45x and
+19x faster respectively), removal of the unused `alpha` hyperparameter of
+`"seed"`, two bundled reference datasets with rewritten vignettes, and a
+declared `Depends: R (>= 4.1)` and `utils` import.
 
 ## Downstream dependencies
 
-This is a new submission; there are no reverse dependencies.
+There are no reverse dependencies on CRAN.

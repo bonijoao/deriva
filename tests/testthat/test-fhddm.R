@@ -4,12 +4,12 @@ run_fhddm <- function(x, ...) {
   run_engine(m, m$init(params), x)
 }
 
-test_that("fhddm registered with defaults; FALSE while window fills", {
+test_that("fhddm registered with defaults; NA while window fills", {
   m <- drift_method("fhddm")
   expect_identical(m$signal_type, "error")
   expect_identical(m$params$window_size, 100)
   out <- run_fhddm(stats::rbinom(100, 1, 0.1))
-  expect_false(any(is.na(out$signals$.drift)))   # window-fill -> FALSE (like KSWIN)
+  expect_true(all(is.na(out$signals$.drift[1:99])))   # window-fill -> NA
 })
 
 test_that("fhddm detects an error-rate jump after the change point", {

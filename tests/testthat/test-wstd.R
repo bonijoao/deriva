@@ -52,3 +52,24 @@ test_that("wstd caps the older window at max_old", {
   # buffer holds at most window_size + max_old observations
   expect_lte(length(out$state$buf), 30 + 50)
 })
+
+rank_sum_reference <- function(recent, older) {
+  n1 <- length(recent); n2 <- length(older); N <- n1 + n2
+  combined <- c(recent, older)
+  W <- sum(rank(combined)[seq_len(n1)])
+  tt <- table(combined)
+  sigma2 <- (n1 * n2 / 12) * ((N + 1) - sum(tt^3 - tt) / (N * (N - 1)))
+  if (sigma2 <= 0) return(1)
+  z <- (W - n1 * (N + 1) / 2 - 0.5) / sqrt(sigma2)
+  if (z <= 0) 1 else stats::pnorm(z, lower.tail = FALSE)
+}
+
+test_that("the counts-based p-value equals the rank-sum computation", {
+  withr::local_seed(1)
+  for (i in 1:500) {
+    recent <- stats::rbinom(sample(1:40, 1), 1, stats::runif(1))
+    older <- stats::rbinom(sample(1:400, 1), 1, stats::runif(1))
+    expect_equal(wstd_pvalue(recent, older), rank_sum_reference(recent, older),
+                 tolerance = 1e-12)
+  }
+})

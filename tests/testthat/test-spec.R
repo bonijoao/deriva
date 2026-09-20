@@ -19,4 +19,5 @@ test_that("drift_detector() rejects unknown params and methods", {
 test_that("print.drift_detector shows method and params", {
   expect_output(print(drift_detector("ddm")), "ddm")
   expect_output(print(drift_detector("ddm")), "min_instances")
+  expect_output(print(drift_detector("ddm")), "keep: 10000")
 })

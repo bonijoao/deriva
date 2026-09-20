@@ -5,18 +5,14 @@
 # reproducibility. No warning level -> signal$warning is always NA.
 
 kswin_init <- function(params) {
-  if (params$window_size <= params$stat_size) {
-    cli::cli_abort(
-      "{.arg window_size} ({params$window_size}) must be greater than {.arg stat_size} ({params$stat_size})."
-    )
-  }
   list(params = params, window = numeric(0))
 }
 
 kswin_step <- function(state, obs) {
   p <- state$params
-  drift <- FALSE
+  drift <- NA
   if (length(state$window) >= p$window_size) {
+    drift <- FALSE
     state$window <- state$window[-1]
     rnd_indices <- sample(seq_len(length(state$window) - p$stat_size),
                           p$stat_size, replace = TRUE)

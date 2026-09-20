@@ -17,8 +17,9 @@
 A tibble.
 }
 \description{
-With \code{new_data = NULL}, returns the accumulated history (baseline +
-advanced batches) annotated with \code{.warning}, \code{.drift} and \code{.phase}.
+With \code{new_data = NULL}, returns the retained history (the last \code{keep} rows
+of baseline + advanced batches) annotated with \code{.warning}, \code{.drift} and
+\code{.phase}.
 With \code{new_data}, returns a READ-ONLY preview: the batch annotated from
 the current state, WITHOUT persisting it — use \code{\link[=advance]{advance()}} to persist.
 }

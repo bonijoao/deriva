@@ -14,10 +14,10 @@ test_that("adwin registered as a distribution method with defaults", {
   expect_identical(m$params$grace_period, 10)
 })
 
-test_that("adwin warning is all NA and there is no NA warm-up", {
+test_that("adwin warning is all NA and the grace period is NA", {
   out <- run_adwin(stats::rnorm(200))
   expect_true(all(is.na(out$signals$.warning)))   # no warning level
-  expect_false(any(is.na(out$signals$.drift)))    # window-based -> FALSE, not NA
+  expect_true(all(is.na(out$signals$.drift[1:10])))
 })
 
 test_that("adwin detects a mean shift after the change point", {

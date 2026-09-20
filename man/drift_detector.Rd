@@ -4,13 +4,30 @@
 \alias{drift_detector}
 \title{Specify a drift detector}
 \usage{
-drift_detector(method = "ddm", ...)
+drift_detector(method = "ddm", ..., seed = NULL, keep = 10000)
 }
 \arguments{
 \item{method}{Name of a registered detection method, e.g. \code{"ddm"}.}
 
 \item{...}{Method hyperparameters overriding the defaults (e.g.
-\code{min_instances = 50} for \code{"ddm"}). Unknown parameters error.}
+\code{min_instances = 50} for \code{"ddm"}). Unknown parameters and values
+outside a parameter's valid range error. A few hyperparameters are
+thresholds on the signal's own scale rather than dimensionless, notably
+\code{epsilon_prime} for \code{"seed"}, whose default (\code{0.01}) suits a 0/1 error
+stream; on a numeric stream of a different magnitude, scale it to match.}
+
+\item{seed}{\code{NULL} (default) or a single whole number. When set, the
+detector draws from its own private random stream, carried inside the
+fitted object: results are reproducible, do not depend on how the stream
+is split into batches, and the session's global RNG is left untouched.
+Only \code{"kswin"} and \code{"seqdrift2"} are stochastic. With \code{NULL} they draw
+from the global RNG, so call \code{\link[=set.seed]{set.seed()}} yourself for reproducibility.}
+
+\item{keep}{Number of most recent annotated rows retained in the fitted
+object's history (default \code{10000}), bounding memory and the cost of each
+\code{\link[=advance]{advance()}} on long-running streams. Totals in \code{\link[=glance]{glance()}} and drift points
+in \code{\link[=tidy]{tidy()}} are tracked separately and stay exact whatever \code{keep} is.
+\code{Inf} keeps everything and \code{0} keeps nothing; both warn.}
 }
 \value{
 A \code{drift_detector} specification object.
@@ -19,6 +36,21 @@ A \code{drift_detector} specification object.
 Creates an inert detector specification (analogous to a parsnip model
 spec). Nothing is computed until \code{\link[=fit]{fit()}} is called on a baseline period.
 }
+\section{Warning and drift flags}{
+
+Every detector annotates each observation with \code{.warning} and \code{.drift}
+under one contract. \code{NA}: the detector cannot judge this observation yet —
+it is warming up, which also happens again right after a detected drift
+resets it. \code{FALSE}: the detector is active and has not flagged drift as of
+this observation; note that \code{"adwin"}, \code{"seed"} and \code{"seqdrift2"} run their
+test only on a clock or at block boundaries, so between tests they carry
+the previous verdict forward. \code{TRUE}: it flagged drift here. Detectors with
+no warning level (\code{"ewma"}, \code{"page_hinkley"}, \code{"cusum"}, \code{"kswin"},
+\code{"adwin"}, \code{"seed"}, \code{"seqdrift2"}, \code{"fhddms"}, \code{"mddm_a"}, \code{"mddm_g"},
+\code{"mddm_e"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
+\code{dplyr::filter(.drift)}, which skip \code{NA}; \code{any(.drift)} needs \code{na.rm = TRUE}.
+}
+
 \examples{
 drift_detector("ddm", min_instances = 50)
 }

@@ -4,8 +4,9 @@ generics::augment
 
 #' Annotated observations from a fitted drift detector
 #'
-#' With `new_data = NULL`, returns the accumulated history (baseline +
-#' advanced batches) annotated with `.warning`, `.drift` and `.phase`.
+#' With `new_data = NULL`, returns the retained history (the last `keep` rows
+#' of baseline + advanced batches) annotated with `.warning`, `.drift` and
+#' `.phase`.
 #' With `new_data`, returns a READ-ONLY preview: the batch annotated from
 #' the current state, WITHOUT persisting it — use [advance()] to persist.
 #'
@@ -19,11 +20,13 @@ generics::augment
 #' f0 <- fit(drift_detector("ddm"), base, signal = error)
 #' augment(f0)
 augment.drift_detector_fit <- function(x, new_data = NULL, ...) {
+  check_fit_version(x)
   if (is.null(new_data)) {
     return(x$history)
   }
+  check_reserved_columns(new_data, c(".warning", ".drift"))
   sig <- validate_signal(new_data, x$signal_col, x$spec)
   m <- drift_method(x$spec$method)
-  out <- run_engine(m, x$state, sig)
+  out <- run_engine_rng(m, x$state, sig, x$rng)
   annotate(new_data, out$signals)
 }
