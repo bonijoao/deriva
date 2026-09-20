@@ -31,6 +31,9 @@ jobs:
           use-public-rspm: true
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          # CRAN ships the R 4.6 macOS binaries as zstd under a .tgz name;
+          # released pak only knows gzip and fails with "unknown archive type".
+          pak-version: devel
           extra-packages: any::rcmdcheck
           needs: check
       - uses: r-lib/actions/check-r-package@v2
