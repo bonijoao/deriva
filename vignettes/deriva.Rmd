@@ -30,7 +30,7 @@ Monitoring for drift requires a *drift detector*: an algorithm that reads a stre
 This vignette works through `credit_monitoring`, a dataset shipped with the package: the per-observation error stream of a credit-approval classifier in production.
 
 ```{r data}
-credit_monitoring
+head(credit_monitoring)
 ```
 
 For its first 500 observations the model runs at its expected 5% error rate. After observation 500, a shift in the credit market raises the error rate to 30% — `drift_true` records this ground truth, which a real deployment would not have access to (`deriva`'s job is to infer it from `error` alone).

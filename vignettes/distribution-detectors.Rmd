@@ -29,7 +29,7 @@ library(deriva)
 `sensor_monitoring`, shipped with the package, is a numeric sensor-reading stream: 500 stable observations centred at 0, then 500 after the sensor drifted out of calibration and the mean shifted to 2.
 
 ```{r data}
-sensor_monitoring
+head(sensor_monitoring)
 ```
 
 ## Detecting the shift with KSWIN
