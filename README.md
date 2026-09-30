@@ -1,6 +1,6 @@
 <!-- README.md is generated from the package sources. Please edit vignettes/README content in the R source and this file together. -->
 
-# deriva
+# deriva <img src="man/figures/logo.png" align="right" height="139" alt="deriva package logo" />
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/deriva)](https://CRAN.R-project.org/package=deriva)

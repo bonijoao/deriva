@@ -1,6 +1,6 @@
 <!-- README.pt-BR.md é a versão em português deste README. -->
 
-# deriva
+# deriva <img src="man/figures/logo.png" align="right" height="139" alt="logo do pacote deriva" />
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/deriva)](https://CRAN.R-project.org/package=deriva)
