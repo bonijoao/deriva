@@ -2,6 +2,8 @@
 
 ## deriva 0.2.0
 
+CRAN release: 2026-09-20
+
 - `.warning` and `.drift` now follow one contract across all 22
   detectors: `NA` means the detector cannot judge that observation yet
   (warm-up), `FALSE` that it is active and has not flagged drift as of
