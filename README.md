@@ -1,6 +1,6 @@
 <!-- README.md is generated from the package sources. Please edit vignettes/README content in the R source and this file together. -->
 
-# deriva <img src="man/figures/logo.png" align="right" height="139" alt="deriva package logo" />
+# deriva
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/deriva)](https://CRAN.R-project.org/package=deriva)
@@ -8,6 +8,8 @@
 [![R-CMD-check](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bonijoao/deriva/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- badges: end -->
+
+<img src="man/figures/logo.png" align="right" height="139" alt="deriva package logo" />
 
 **Read this in other languages:** [Português](https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md)
 
