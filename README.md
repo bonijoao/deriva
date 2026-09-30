@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- badges: end -->
 
-<img src="man/figures/logo.png" align="right" height="139" alt="deriva package logo" />
+<img src="man/figures/logo.png" align="right" height="200" alt="deriva package logo" />
 
 **Read this in other languages:** [Português](https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md)
 
