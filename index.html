@@ -61,7 +61,7 @@
 </div>
 <!-- badges: start -->
 
-<p><img src="reference/figures/logo.png" align="right" height="139" alt="deriva package logo"></p>
+<p><img src="reference/figures/logo.png" align="right" height="200" alt="deriva package logo"></p>
 <p><strong>Read this in other languages:</strong> <a href="https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md" class="external-link">Português</a></p>
 <p><code>deriva</code> detects <strong>concept drift</strong> and <strong>data drift</strong> in streams produced by deployed machine learning models, through a tidy interface that composes naturally with the <code>tidymodels</code> ecosystem. Detectors are specified, fitted on a baseline period, and advanced over new batches of observations, returning tibbles annotated with warning and drift flags.</p>
 <p>A machine learning model trained on historical data implicitly assumes the data-generating process stays stable over time. When that assumption breaks — user behaviour shifts, a sensor drifts out of calibration, the market changes — predictions degrade silently, with no obvious error raised. <code>deriva</code> watches a stream of per-observation signals (typically prediction errors) and flags the moment the underlying distribution changed.</p>
