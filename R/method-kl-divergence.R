@@ -22,23 +22,33 @@
 
 # Break points of the kdq-tree cells built on `ref`, on the original scale.
 # Cells are [b_i, b_{i+1}) as findInterval() sees them; outer breaks are +-Inf.
+# Non-finite values cannot shape the cells (they would collapse them); they are
+# still counted, in the outer cells, by kl_cell().
 kl_cells <- function(ref, max_cell_points, min_cell_width) {
+  ref <- ref[is.finite(ref)]
+  if (length(ref) == 0) ref <- 0
   lo <- min(ref)
-  width <- max(ref) - lo
-  if (width == 0) {
+  half <- max(ref) / 2 - lo / 2                    # half the range: never overflows
+  if (half == 0) {
     return(c(-Inf, lo, lo + max(abs(lo), 1) * 1e-9, Inf))
   }
-  s <- (ref - lo) / width
+  s <- (ref / 2 - lo / 2) / half
   split <- function(x, a, b) {
     if (length(x) < max_cell_points || (b - a) < min_cell_width) return(numeric(0))
     mid <- (a + b) / 2
     c(split(x[x < mid], a, mid), mid, split(x[x >= mid], mid, b))
   }
-  c(-Inf, lo + split(s, 0, 1) * width, Inf)
+  inner <- split(s, 0, 1)
+  c(-Inf, lo + inner * half + inner * half, Inf)
+}
+
+# Cell index of each value; +-Inf land in the outer cells.
+kl_cell <- function(x, breaks) {
+  findInterval(x, breaks, all.inside = TRUE)
 }
 
 kl_counts <- function(x, breaks) {
-  tabulate(findInterval(x, breaks), length(breaks) - 1L)
+  tabulate(kl_cell(x, breaks), length(breaks) - 1L)
 }
 
 # Base-2 KL distance between two types with Krichevsky-Trofimov probabilities.
@@ -80,11 +90,11 @@ kl_divergence_step <- function(state, obs) {
     }
     return(list(state = state, signal = idle))
   }
-  cell <- findInterval(obs, state$breaks)
+  cell <- kl_cell(obs, state$breaks)
   state$win_counts[cell] <- state$win_counts[cell] + 1L
   state$window <- c(state$window, obs)
   if (length(state$window) > n) {                  # slide: drop the oldest value
-    old <- findInterval(state$window[1], state$breaks)
+    old <- kl_cell(state$window[1], state$breaks)
     state$win_counts[old] <- state$win_counts[old] - 1L
     state$window <- state$window[-1]
   }

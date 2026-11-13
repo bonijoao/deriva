@@ -9,8 +9,12 @@
   bootstrap) and honours `seed`, and has no warning level. Defaults follow the
   paper's Table 1, except `window_size` and `max_cell_points`, which are scaled
   down from the paper's 10000-point windows. In simulation, about 3 in 10
-  stationary streams of 2000 observations raise a false alarm, and on the
-  bundled `sensor_monitoring` stream it flags once before the true change.
+  stationary streams of 2000 observations raise a false alarm. On the bundled
+  `sensor_monitoring` stream it raises one around row 432; the restart then
+  takes a reference that straddles the true change at row 501, so the real
+  shift is reported only at row 841. The paper's own one-dimensional
+  experiments used a much stricter `alpha`; lower it (raising `n_boot` to at
+  least `1 / alpha`) for fewer false alarms at the cost of a longer delay.
 
 # deriva 0.2.0
 

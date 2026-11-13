@@ -90,3 +90,29 @@ test_that("kl_divergence needs at least 1 / alpha bootstrap samples", {
   expect_error(drift_detector("kl_divergence", n_boot = 50), "n_boot")
   expect_no_error(drift_detector("kl_divergence", n_boot = 100))
 })
+
+test_that("an infinite value in the sliding window does not abort the run", {
+  set.seed(10); x <- stats::rnorm(500); x[450] <- Inf
+  expect_no_error(run_kl(x))
+})
+
+test_that("an infinite value in the reference keeps the detector alive", {
+  set.seed(11); x <- c(stats::rnorm(500), stats::rnorm(500, 5))
+  x[50] <- Inf
+  expect_true(any(run_kl(x)$.drift[501:800], na.rm = TRUE))
+  x[50] <- -Inf
+  expect_true(any(run_kl(x)$.drift[501:800], na.rm = TRUE))
+})
+
+test_that("kl_cells survives a reference range that overflows", {
+  b <- kl_cells(c(-1e308, -1, 0, 1, 1e308), 2, 2^-10)
+  inner <- b[-c(1, length(b))]
+  expect_gt(length(inner), 0)
+  expect_true(all(is.finite(inner)))
+})
+
+test_that("max_cell_points above window_size is refused, since no cell could split", {
+  expect_error(drift_detector("kl_divergence", max_cell_points = 500), "max_cell_points")
+  expect_error(drift_detector("kl_divergence", window_size = 15), "max_cell_points")
+  expect_no_error(drift_detector("kl_divergence", max_cell_points = 200))
+})
