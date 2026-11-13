@@ -14,7 +14,7 @@
 #'   detector draws from its own private random stream, carried inside the
 #'   fitted object: results are reproducible, do not depend on how the stream
 #'   is split into batches, and the session's global RNG is left untouched.
-#'   Only `"kswin"` and `"seqdrift2"` are stochastic. With `NULL` they draw
+#'   Only `"kswin"`, `"seqdrift2"` and `"kl_divergence"` are stochastic. With `NULL` they draw
 #'   from the global RNG, so call [set.seed()] yourself for reproducibility.
 #' @param keep Number of most recent annotated rows retained in the fitted
 #'   object's history (default `10000`), bounding memory and the cost of each
@@ -32,7 +32,7 @@
 #' the previous verdict forward. `TRUE`: it flagged drift here. Detectors with
 #' no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
 #' `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddms"`, `"mddm_a"`, `"mddm_g"`,
-#' `"mddm_e"`) always give `.warning = NA`. Use `which(.drift)` or
+#' `"mddm_e"`, `"kl_divergence"`) always give `.warning = NA`. Use `which(.drift)` or
 #' `dplyr::filter(.drift)`, which skip `NA`; `any(.drift)` needs `na.rm = TRUE`.
 #'
 #' @return A `drift_detector` specification object.

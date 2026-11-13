@@ -297,4 +297,33 @@
       reference = "Pears, Sakthithasan & Koh (2014). Detecting concept change in dynamic data streams. Machine Learning 97."
     )
   )
+  register_drift_method(
+    name = "kl_divergence",
+    init = kl_divergence_init,
+    step = kl_divergence_step,
+    signal_type = "distribution",
+    params = list(window_size = 200, max_cell_points = 20, min_cell_width = 2^-10,
+                  alpha = 0.01, persistence = 0.05, n_boot = 500),
+    checks = list(window_size = p_whole(2), max_cell_points = p_whole(),
+                  min_cell_width = p_number(0, 1, open_min = TRUE),
+                  alpha = p_prob(), persistence = p_number(0, 1, open_min = TRUE),
+                  n_boot = p_whole()),
+    constraint = function(p) {
+      # Dasu et al. (2006), section 6: k must be at least 1 / alpha to be meaningful
+      if (p$n_boot < 1 / p$alpha) {
+        return(sprintf("`n_boot` (%s) must be at least 1 / `alpha` (%s).",
+                       format(p$n_boot), format(1 / p$alpha)))
+      }
+      # a reference with fewer points than max_cell_points is never split
+      if (p$max_cell_points > p$window_size) {
+        return(sprintf("`max_cell_points` (%s) must not exceed `window_size` (%s).",
+                       format(p$max_cell_points), format(p$window_size)))
+      }
+      NULL
+    },
+    meta = list(
+      full_name = "Kullback-Leibler Change Detection",
+      reference = "Dasu, Krishnan, Venkatasubramanian & Yi (2006). An Information-Theoretic Approach to Detecting Changes in Multi-Dimensional Data Streams. Proc. Symposium on the Interface of Statistics, Computing Science, and Applications."
+    )
+  )
 }
