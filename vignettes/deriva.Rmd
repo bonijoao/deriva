@@ -23,7 +23,7 @@ library(deriva)
 
 A machine learning model trained on historical data operates under the implicit assumption that the data-generating process remains stable over time. When this assumption breaks down — because user behaviour shifts, sensor calibration drifts, or the world simply changes — the model's predictions degrade without any obvious error being raised. This phenomenon is called **concept drift**.
 
-Monitoring for drift requires a *drift detector*: an algorithm that reads a stream of per-observation signals (typically prediction errors) and raises a flag when the signal's distribution has changed significantly. The `deriva` package provides a tidy interface to a catalogue of 22 such detectors, designed to compose naturally with the tidymodels ecosystem.
+Monitoring for drift requires a *drift detector*: an algorithm that reads a stream of per-observation signals (typically prediction errors) and raises a flag when the signal's distribution has changed significantly. The `deriva` package provides a tidy interface to a catalogue of 23 such detectors, designed to compose naturally with the tidymodels ecosystem.
 
 ## The running example: a credit-approval model
 
@@ -150,12 +150,12 @@ Some detectors monitor the distribution of a numeric stream directly, without re
 
 ## Available methods
 
-`deriva` ships with 22 drift detectors across two signal types.
+`deriva` ships with 23 drift detectors across two signal types.
 
 | Signal type | Methods |
 |---|---|
 | `"error"` (0/1 errors) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
-| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2` |
+| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2`, `kl_divergence` |
 
 Use `drift_detector("<method>")` to inspect default hyperparameters for any method.
 

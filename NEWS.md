@@ -1,3 +1,17 @@
+# deriva (development version)
+
+* New detector `"kl_divergence"`, the Kullback-Leibler change detector of
+  Dasu, Krishnan, Venkatasubramanian and Yi (2006) in one dimension. A fixed
+  reference window is compared with a sliding window over cells built from the
+  reference (a 1-D kdq-tree), with Krichevsky-Trofimov smoothing; drift is
+  flagged when the distance stays above a bootstrap critical value for
+  `persistence * window_size` consecutive observations. It is stochastic (the
+  bootstrap) and honours `seed`, and has no warning level. Defaults follow the
+  paper's Table 1, except `window_size` and `max_cell_points`, which are scaled
+  down from the paper's 10000-point windows. In simulation, about 3 in 10
+  stationary streams of 2000 observations raise a false alarm, and on the
+  bundled `sensor_monitoring` stream it flags once before the true change.
+
 # deriva 0.2.0
 
 * `.warning` and `.drift` now follow one contract across all 22 detectors:

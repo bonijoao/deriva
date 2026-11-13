@@ -1,6 +1,6 @@
 Package: deriva
 Title: Tidy Drift Detection for Monitored Machine Learning Models
-Version: 0.2.0
+Version: 0.2.0.9000
 Authors@R: c(
     person("João Paulo Assis", "Bonifácio", , "jpab.27@hotmail.com",
            role = c("aut", "cre"),
@@ -17,7 +17,7 @@ Description: Detects concept drift and data drift in streams produced by
     with the 'tidymodels' ecosystem. Detectors are specified, fitted on a
     baseline period, and advanced over new batches of observations,
     returning tibbles annotated with warning and drift flags. A catalogue
-    of 22 sequential drift detectors is provided. Error-based methods
+    of 23 sequential drift detectors is provided. Error-based methods
     include the Drift Detection Method (DDM) of Gama et al. (2004)
     <doi:10.1007/978-3-540-28645-5_29>, the Early Drift Detection Method
     (EDDM) of Baena-Garcia et al. (2006), the Hoeffding's inequality
@@ -28,8 +28,8 @@ Description: Detects concept drift and data drift in streams produced by
     include Adaptive Windowing (ADWIN) of Bifet and Gavalda (2007)
     <doi:10.1137/1.9781611972771.42>, Kolmogorov-Smirnov Windowing
     (KSWIN) of Raab et al. (2020) <doi:10.1016/j.neucom.2019.11.111>,
-    and the Page-Hinkley test of Page (1954)
-    <doi:10.1093/biomet/41.1-2.100>.
+    the Page-Hinkley test of Page (1954) <doi:10.1093/biomet/41.1-2.100>,
+    and the Kullback-Leibler change detector of Dasu et al. (2006).
 License: MIT + file LICENSE
 URL: https://github.com/bonijoao/deriva, https://bonijoao.github.io/deriva/
 BugReports: https://github.com/bonijoao/deriva/issues
