@@ -24,7 +24,7 @@ predictions degrade silently, with no obvious error raised. `deriva` watches a
 stream of per-observation signals (typically prediction errors) and flags the
 moment the underlying distribution changed.
 
-The package ships a catalogue of **23 sequential drift detectors**, covering both
+The package ships a catalogue of **24 sequential drift detectors**, covering both
 error-based methods (DDM, EDDM, HDDM, EWMA, ...) and distribution-based methods
 (ADWIN, KSWIN, Page-Hinkley, ...).
 
@@ -110,7 +110,7 @@ fit(drift_detector("page_hinkley"), monitoring_data, signal = .error)
 | Signal type | Methods |
 |---|---|
 | `"error"` (0/1 errors) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
-| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2`, `kl_divergence` |
+| `"distribution"` (numeric stream) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2`, `seqdrift1`, `kl_divergence` |
 
 Use `drift_detector("<method>")` to inspect the default hyperparameters for any method.
 

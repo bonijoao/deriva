@@ -42,9 +42,9 @@ Every detector annotates each observation with \code{.warning} and \code{.drift}
 under one contract. \code{NA}: the detector cannot judge this observation yet —
 it is warming up, which also happens again right after a detected drift
 resets it. \code{FALSE}: the detector is active and has not flagged drift as of
-this observation; note that \code{"adwin"}, \code{"seed"} and \code{"seqdrift2"} run their
-test only on a clock or at block boundaries, so between tests they carry
-the previous verdict forward. \code{TRUE}: it flagged drift here. Detectors with
+this observation; note that \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"} and
+\code{"seqdrift1"} run their test only on a clock or at block boundaries, so
+between tests they carry the previous verdict forward. \code{TRUE}: it flagged drift here. Detectors with
 no warning level (\code{"ewma"}, \code{"page_hinkley"}, \code{"cusum"}, \code{"kswin"},
 \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"}, \code{"fhddms"}, \code{"mddm_a"}, \code{"mddm_g"},
 \code{"mddm_e"}, \code{"kl_divergence"}) always give \code{.warning = NA}. Use \code{which(.drift)} or

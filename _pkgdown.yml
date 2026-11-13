@@ -6,7 +6,7 @@ template:
 reference:
 - title: Specifying and fitting detectors
   desc: >
-    Choose a detector from the catalogue of 23 methods, fit it on a baseline
+    Choose a detector from the catalogue of 24 methods, fit it on a baseline
     period, and advance it over new observations.
   contents:
   - drift_detector

@@ -15,6 +15,17 @@
   shift is reported only at row 841. The paper's own one-dimensional
   experiments used a much stricter `alpha`; lower it (raising `n_boot` to at
   least `1 / alpha`) for fewer false alarms at the cost of a longer delay.
+* New detector `"seqdrift1"`, SeqDrift1 of Sakthithasan, Pears and Koh (2013),
+  the sliding-window predecessor of `"seqdrift2"`. At every block boundary the
+  mean of the recent values is compared with that of a left window of older
+  blocks (at most `1 / delta` of them) using the Bernstein bound of Theorem 1
+  in Pears, Sakthithasan and Koh (2014). Unlike `"seqdrift2"` it is
+  deterministic and has a warning level: while the difference sits between
+  the `delta_warning` and `delta` thresholds, `.warning` is `TRUE` and the
+  recent window keeps growing. Defaults (`delta = 0.01`,
+  `delta_warning = 0.1`, `block_size = 200`) follow the author's MOA
+  implementation. As for `"seqdrift2"`, the bound's guarantee assumes values
+  in [0, 1], such as 0/1 errors.
 
 # deriva 0.2.0
 
