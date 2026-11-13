@@ -27,9 +27,9 @@
 #' under one contract. `NA`: the detector cannot judge this observation yet —
 #' it is warming up, which also happens again right after a detected drift
 #' resets it. `FALSE`: the detector is active and has not flagged drift as of
-#' this observation; note that `"adwin"`, `"seed"` and `"seqdrift2"` run their
-#' test only on a clock or at block boundaries, so between tests they carry
-#' the previous verdict forward. `TRUE`: it flagged drift here. Detectors with
+#' this observation; note that `"adwin"`, `"seed"`, `"seqdrift2"` and
+#' `"seqdrift1"` run their test only on a clock or at block boundaries, so
+#' between tests they carry the previous verdict forward. `TRUE`: it flagged drift here. Detectors with
 #' no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
 #' `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddms"`, `"mddm_a"`, `"mddm_g"`,
 #' `"mddm_e"`, `"kl_divergence"`) always give `.warning = NA`. Use `which(.drift)` or

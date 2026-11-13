@@ -28,7 +28,8 @@ test_that("a detector without a warning level never reports one", {
 test_that("warm-up ends where each algorithm first evaluates", {
   first_evaluated <- c(fhddm = 100, fhddms = 100, mddm_a = 100, mddm_g = 100,
                        mddm_e = 100, kswin = 101, adwin = 11, seed = 64,
-                       seqdrift2 = 400, kl_divergence = 400)
+                       seqdrift2 = 400, kl_divergence = 400,
+                       seqdrift1 = 400)
   for (m in names(first_evaluated)) {
     d <- run_on_bundled(m)$.drift
     expect_identical(which(!is.na(d))[[1]], as.integer(first_evaluated[[m]]), label = m)

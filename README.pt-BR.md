@@ -26,7 +26,7 @@ nenhum erro óbvio ser levantado. O `deriva` observa um fluxo de sinais por
 observação (tipicamente erros de previsão) e sinaliza o momento em que a
 distribuição subjacente mudou.
 
-O pacote traz um catálogo de **23 detectores de deriva sequenciais**, cobrindo
+O pacote traz um catálogo de **24 detectores de deriva sequenciais**, cobrindo
 tanto métodos baseados em erro (DDM, EDDM, HDDM, EWMA, ...) quanto métodos
 baseados em distribuição (ADWIN, KSWIN, Page-Hinkley, ...).
 
@@ -114,7 +114,7 @@ fit(drift_detector("page_hinkley"), dados_monitoramento, signal = .error)
 | Tipo de sinal | Métodos |
 |---|---|
 | `"error"` (erros 0/1) | `ddm`, `eddm`, `hddm_a`, `hddm_w`, `ewma`, `rddm`, `stepd`, `fhddm`, `fhddms`, `mddm_a`, `mddm_e`, `mddm_g`, `wstd`, `ftdd`, `fpdd`, `fsdd` |
-| `"distribution"` (fluxo numérico) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2`, `kl_divergence` |
+| `"distribution"` (fluxo numérico) | `kswin`, `adwin`, `page_hinkley`, `cusum`, `seed`, `seqdrift2`, `seqdrift1`, `kl_divergence` |
 
 Use `drift_detector("<método>")` para inspecionar os hiperparâmetros padrão de
 qualquer método.
