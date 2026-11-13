@@ -36,3 +36,57 @@ test_that("kl_bootstrap returns a positive threshold on a continuous reference",
   set.seed(2); d <- kl_bootstrap(ref, b, 500, 0.01)
   expect_true(is.numeric(d) && length(d) == 1 && d > 0)
 })
+
+run_kl <- function(x, seed = 1, ...) {
+  detect_drift(tibble::tibble(value = x), .col = value, method = "kl_divergence",
+               seed = seed, ...)
+}
+
+test_that("kl_divergence is registered with the paper's defaults", {
+  m <- drift_method("kl_divergence")
+  expect_identical(m$signal_type, "distribution")
+  expect_identical(m$params, list(window_size = 200, max_cell_points = 20,
+    min_cell_width = 2^-10, alpha = 0.01, persistence = 0.05, n_boot = 500))
+})
+
+test_that("kl_divergence is NA until both windows are full", {
+  set.seed(3); r <- run_kl(stats::rnorm(600))
+  expect_true(all(is.na(r$.drift[1:399])))
+  expect_false(is.na(r$.drift[400]))
+  expect_true(all(is.na(r$.warning)))
+})
+
+test_that("kl_divergence detects a mean shift and a variance shift", {
+  set.seed(4); r <- run_kl(c(stats::rnorm(600), stats::rnorm(600, 2)))
+  expect_true(any(r$.drift[601:900], na.rm = TRUE))
+  set.seed(5); r <- run_kl(c(stats::rnorm(600), stats::rnorm(600, sd = 3)))
+  expect_true(any(r$.drift[601:1000], na.rm = TRUE))
+})
+
+test_that("kl_divergence stays quiet on a stationary stream", {
+  set.seed(6); r <- run_kl(stats::rnorm(800), seed = 6)
+  expect_false(any(r$.drift, na.rm = TRUE))
+})
+
+test_that("kl_divergence re-warms after a drift and survives a short tail", {
+  set.seed(7); x <- c(stats::rnorm(600), stats::rnorm(150, 3))
+  r <- run_kl(x)
+  hit <- which(r$.drift)[1]
+  expect_false(is.na(hit))
+  expect_true(all(is.na(r$.drift[(hit + 1):length(x)])))
+})
+
+test_that("kl_divergence is reproducible and batch-invariant under a seed", {
+  set.seed(8); s <- tibble::tibble(value = c(stats::rnorm(500), stats::rnorm(500, 1.5)))
+  expect_identical(run_kl(s$value, seed = 9)$.drift, run_kl(s$value, seed = 9)$.drift)
+  f0 <- fit(drift_detector("kl_divergence", seed = 9), s[1:300, ], signal = value)
+  one <- advance(f0, s[301:1000, ])
+  two <- advance(advance(f0, s[301:650, ]), s[651:1000, ])
+  expect_identical(one$history, two$history)
+  expect_identical(one$rng, two$rng)
+})
+
+test_that("kl_divergence needs at least 1 / alpha bootstrap samples", {
+  expect_error(drift_detector("kl_divergence", n_boot = 50), "n_boot")
+  expect_no_error(drift_detector("kl_divergence", n_boot = 100))
+})

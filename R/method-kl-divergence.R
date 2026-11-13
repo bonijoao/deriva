@@ -60,3 +60,38 @@ kl_bootstrap <- function(ref, breaks, n_boot, alpha) {
   }, numeric(1))
   stats::quantile(d, 1 - alpha, names = FALSE)
 }
+
+kl_divergence_init <- function(params) {
+  list(params = params, ref = numeric(0), breaks = NULL, ref_counts = NULL,
+       d_hi = NA_real_, window = numeric(0), win_counts = NULL, streak = 0)
+}
+
+kl_divergence_step <- function(state, obs) {
+  p <- state$params
+  n <- p$window_size
+  idle <- list(warning = NA, drift = NA)
+  if (length(state$ref) < n) {                     # filling the reference
+    state$ref <- c(state$ref, obs)
+    if (length(state$ref) == n) {
+      state$breaks <- kl_cells(state$ref, p$max_cell_points, p$min_cell_width)
+      state$ref_counts <- kl_counts(state$ref, state$breaks)
+      state$win_counts <- integer(length(state$ref_counts))
+      state$d_hi <- kl_bootstrap(state$ref, state$breaks, p$n_boot, p$alpha)
+    }
+    return(list(state = state, signal = idle))
+  }
+  cell <- findInterval(obs, state$breaks)
+  state$win_counts[cell] <- state$win_counts[cell] + 1L
+  state$window <- c(state$window, obs)
+  if (length(state$window) > n) {                  # slide: drop the oldest value
+    old <- findInterval(state$window[1], state$breaks)
+    state$win_counts[old] <- state$win_counts[old] - 1L
+    state$window <- state$window[-1]
+  }
+  if (length(state$window) < n) return(list(state = state, signal = idle))
+  d <- kl_kt_divergence(state$ref_counts, state$win_counts)
+  state$streak <- if (d > state$d_hi) state$streak + 1 else 0
+  drift <- state$streak >= ceiling(p$persistence * n)
+  if (drift) state <- kl_divergence_init(p)        # start over (Algorithm 2.1)
+  list(state = state, signal = list(warning = NA, drift = drift))
+}
