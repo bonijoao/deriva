@@ -326,4 +326,25 @@
       reference = "Dasu, Krishnan, Venkatasubramanian & Yi (2006). An Information-Theoretic Approach to Detecting Changes in Multi-Dimensional Data Streams. Proc. Symposium on the Interface of Statistics, Computing Science, and Applications."
     )
   )
+
+  register_drift_method(
+    name = "seqdrift1",
+    init = seqdrift1_init,
+    step = seqdrift1_step,
+    signal_type = "distribution",
+    params = list(delta = 0.01, delta_warning = 0.1, block_size = 200),
+    checks = list(delta = p_prob(), delta_warning = p_prob(), block_size = p_whole()),
+    constraint = function(p) {
+      # otherwise the warning zone can never precede a drift
+      if (p$delta >= p$delta_warning) {
+        return(sprintf("`delta` (%s) must be smaller than `delta_warning` (%s).",
+                       format(p$delta), format(p$delta_warning)))
+      }
+      NULL
+    },
+    meta = list(
+      full_name = "SeqDrift1 (sliding window + Bernstein bound)",
+      reference = "Sakthithasan, Pears & Koh (2013). One Pass Concept Change Detection for Data Streams. PAKDD 2013, LNCS 7819."
+    )
+  )
 }
