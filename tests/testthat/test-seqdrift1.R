@@ -94,3 +94,10 @@ test_that("delta must be below delta_warning", {
   expect_error(drift_detector("seqdrift1", delta = 0.2), "delta_warning")
   expect_no_error(drift_detector("seqdrift1", delta = 0.05))
 })
+
+test_that("seqdrift1 ignores infinite values in its means instead of failing", {
+  set.seed(7); x <- stats::rbinom(1200, 1, 0.1); x[c(100, 300)] <- c(Inf, -Inf)
+  r <- expect_no_error(run_sd1(x))
+  expect_false(any(r$.drift, na.rm = TRUE))
+  expect_false(is.na(r$.drift[400]))
+})

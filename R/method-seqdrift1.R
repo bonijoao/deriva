@@ -14,7 +14,8 @@
 # formula valid only for 0/1 values, and random sub-sampling of the left window.
 # Ours: num_tests restarts at 0 after a drift (the new reference starts a fresh
 # test sequence), and the warning zone is exposed through .warning.
-# Deterministic. The guarantee assumes values in [0, 1], as for "seqdrift2".
+# Infinite values are left out of the means and variance (ours). Deterministic.
+# The guarantee assumes values in [0, 1], as for "seqdrift2".
 
 # Theorem 1 of Pears et al. (2014): twice the converged SeqDrift2 bound.
 seqdrift1_epsilon <- function(b, variance, delta, num_tests) {
@@ -40,10 +41,13 @@ seqdrift1_step <- function(state, obs) {
     } else {
       state$judging <- TRUE
       state$num_tests <- state$num_tests + 1
-      v <- stats::var(c(state$left, state$right))
+      # infinite values stay in the windows but cannot enter a mean
+      lf <- state$left[is.finite(state$left)]
+      rf <- state$right[is.finite(state$right)]
+      v <- stats::var(c(lf, rf))
       if (!is.finite(v)) v <- 0
-      n <- length(state$right)
-      diff <- abs(mean(state$right) - mean(state$left))
+      n <- length(rf)
+      diff <- if (n > 0 && length(lf) > 0) abs(mean(rf) - mean(lf)) else 0
       if (diff >= seqdrift1_epsilon(n, v, p$delta, state$num_tests)) {
         drift <- TRUE                              # the recent data is the new reference
         state$left <- state$right
