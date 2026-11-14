@@ -18,7 +18,9 @@
 # statistic is mean(W_new) - mean(W_hist), the sign that can detect a rise (as
 # printed, Eq. 3 could not); (5) sample standard deviations (the code divides
 # by n). The warning level (t-test at warning_confidence = 0.98) comes from the
-# authors' code; the papers define none. Non-finite values are skipped.
+# authors' code; the papers define none. f_test = FALSE (ours, default TRUE)
+# leaves the F-test out: on low error rates a sub-window with almost no errors
+# has a near-zero variance, and the F-test then fires on stationary data.
 # Deterministic.
 
 optwin_cache <- new.env(parent = emptyenv())
@@ -55,4 +57,38 @@ optwin_cut <- function(n, confidence, rho) {
   out <- list(cut = cut, df = df, fq = fq, tq = stats::qt(dp, df))
   optwin_cache[[key]] <- out
   out
+}
+
+optwin_init <- function(params) {
+  list(params = params, W = numeric(0), warning = FALSE)
+}
+
+# Algorithm 1. eta keeps the F ratio finite on a zero-variance sub-window.
+optwin_step <- function(state, obs) {
+  p <- state$params
+  eta <- 1e-5
+  state$W <- c(state$W, obs)
+  n <- length(state$W)
+  if (n > p$max_window) {                          # drop the oldest value
+    state$W <- state$W[-1]
+    n <- n - 1L
+  }
+  if (n < p$min_window) return(list(state = state, signal = list(warning = NA, drift = NA)))
+  k <- optwin_cut(n, p$confidence, p$rho)
+  h <- state$W[seq_len(k$cut)]
+  w <- state$W[(k$cut + 1):n]
+  m_h <- mean(h)
+  m_n <- mean(w)
+  s_h <- stats::sd(h) + eta
+  s_n <- stats::sd(w) + eta
+  f_sig <- p$f_test && s_n^2 / s_h^2 > k$fq
+  tstat <- (m_n - m_h) / sqrt(s_h^2 / k$cut + s_n^2 / (n - k$cut))   # Eq. (3), sign for a rise
+  drift <- (f_sig || tstat > k$tq) && m_n > m_h
+  if (drift) {                                     # restart from the triggering value
+    state$W <- obs
+    state$warning <- FALSE
+  } else {
+    state$warning <- tstat > stats::qt(p$warning_confidence, k$df)
+  }
+  list(state = state, signal = list(warning = state$warning, drift = drift))
 }
