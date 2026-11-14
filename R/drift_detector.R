@@ -32,7 +32,7 @@
 #' between tests they carry the previous verdict forward. `TRUE`: it flagged drift here. Detectors with
 #' no warning level (`"ewma"`, `"page_hinkley"`, `"cusum"`, `"kswin"`,
 #' `"adwin"`, `"seed"`, `"seqdrift2"`, `"fhddms"`, `"mddm_a"`, `"mddm_g"`,
-#' `"mddm_e"`, `"kl_divergence"`, `"hdddm"`, `"quanttree"`) always give `.warning = NA`. Use `which(.drift)` or
+#' `"mddm_e"`, `"kl_divergence"`, `"hdddm"`, `"quanttree"`, `"iks"`) always give `.warning = NA`. Use `which(.drift)` or
 #' `dplyr::filter(.drift)`, which skip `NA`; `any(.drift)` needs `na.rm = TRUE`.
 #'
 #' @return A `drift_detector` specification object.

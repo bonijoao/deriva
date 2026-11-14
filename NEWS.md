@@ -70,6 +70,27 @@
   paper adds a little noise to such data; deriva does not. When `train_size`
   is not a multiple of `n_bins`, the remainder is spread over the last bins
   (the paper's rounding can leave the last bin empty).
+* New detector `"iks"`, the drift detector of dos Reis, Flach, Matwin and
+  Batista (2016) built on their incremental Kolmogorov-Smirnov test, in one
+  dimension. A fixed reference of `window_size` values is compared with a
+  sliding window of the last `window_size` values by a two-sample KS test
+  after every observation; drift is flagged when the statistic exceeds
+  `c(alpha) * sqrt(2 / window_size)`, and the current window then becomes the
+  reference. The statistic is computed exactly rather than with the paper's
+  treap, which only speeds it up. Unlike `"kswin"`, the reference stays fixed
+  until a drift and both windows are used whole, so `"iks"` is deterministic,
+  and a slow ramp keeps moving away from the reference instead of with it. It
+  has no warning level; the first test is at observation 200 at the
+  defaults, and after a drift the next one comes `window_size` observations
+  later. Defaults are the paper's (`window_size = 100`, `alpha = 0.001`); the
+  small `alpha` is the paper's remedy for testing on every observation, and
+  in simulation 4 in 100 stationary streams of 2000 observations raised a
+  false alarm. Our choices: the initial reference is the first `window_size`
+  observations, and the two windows never overlap. As in the paper, the
+  window that triggered a drift becomes the new reference; it usually still
+  straddles the change, so an abrupt change is often flagged twice,
+  `window_size` observations apart (71 times in 100 in simulation). On the
+  bundled `sensor_monitoring` stream it flags the shift at rows 542 and 642.
 
 # deriva 0.2.0
 

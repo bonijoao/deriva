@@ -47,7 +47,7 @@ this observation; note that \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"},
 between tests they carry the previous verdict forward. \code{TRUE}: it flagged drift here. Detectors with
 no warning level (\code{"ewma"}, \code{"page_hinkley"}, \code{"cusum"}, \code{"kswin"},
 \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"}, \code{"fhddms"}, \code{"mddm_a"}, \code{"mddm_g"},
-\code{"mddm_e"}, \code{"kl_divergence"}, \code{"hdddm"}, \code{"quanttree"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
+\code{"mddm_e"}, \code{"kl_divergence"}, \code{"hdddm"}, \code{"quanttree"}, \code{"iks"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
 \code{dplyr::filter(.drift)}, which skip \code{NA}; \code{any(.drift)} needs \code{na.rm = TRUE}.
 }
 
