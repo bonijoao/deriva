@@ -27,3 +27,27 @@ iks_d <- function(ref_sorted, cur) {
   max(abs(findInterval(z, ref_sorted) / length(ref_sorted) -
             findInterval(z, cur) / length(cur)))
 }
+
+iks_init <- function(params) {
+  list(params = params, ref = numeric(0), cur = numeric(0),
+       crit = iks_c(params$alpha) * sqrt(2 / params$window_size))
+}
+
+iks_step <- function(state, obs) {
+  W <- state$params$window_size
+  idle <- list(warning = NA, drift = NA)
+  if (length(state$ref) < W) {                     # filling the reference
+    state$ref <- c(state$ref, obs)
+    if (length(state$ref) == W) state$ref <- sort(state$ref)
+    return(list(state = state, signal = idle))
+  }
+  state$cur <- c(state$cur, obs)
+  if (length(state$cur) > W) state$cur <- state$cur[-1]
+  if (length(state$cur) < W) return(list(state = state, signal = idle))
+  drift <- iks_d(state$ref, state$cur) > state$crit
+  if (drift) {                                     # the current window is the new reference
+    state$ref <- sort(state$cur)
+    state$cur <- numeric(0)
+  }
+  list(state = state, signal = list(warning = NA, drift = drift))
+}

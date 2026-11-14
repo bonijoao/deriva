@@ -385,4 +385,26 @@
       reference = "Boracchi, Carrera, Cervellera & Macci\u00f2 (2018). QuantTree: Histograms for Change Detection in Multivariate Data Streams. Proc. 35th ICML, PMLR 80, 639-648."
     )
   )
+
+  register_drift_method(
+    name = "iks",
+    init = iks_init,
+    step = iks_step,
+    signal_type = "distribution",
+    params = list(window_size = 100, alpha = 0.001),
+    checks = list(window_size = p_whole(2), alpha = p_prob()),
+    constraint = function(p) {
+      # D <= 1, so a smaller window can never exceed the critical value
+      lim <- 2 * iks_c(p$alpha)^2
+      if (p$window_size <= lim) {
+        return(sprintf("`window_size` (%s) is too small to ever reject at `alpha` (%s); it must exceed %s.",
+                       format(p$window_size), format(p$alpha), format(signif(lim, 3))))
+      }
+      NULL
+    },
+    meta = list(
+      full_name = "Incremental Kolmogorov-Smirnov drift detector",
+      reference = "dos Reis, Flach, Matwin & Batista (2016). Fast Unsupervised Online Drift Detection Using Incremental Kolmogorov-Smirnov Test. KDD 2016, 1545-1554."
+    )
+  )
 }
