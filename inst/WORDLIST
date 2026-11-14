@@ -4,13 +4,16 @@ Bifet
 Blanco
 DDM
 Dasu
+Ditzler
 EDDM
 EWMA
 Frias
 Gama
 Garcia
 Gavalda
+HDDDM
 HDDM
+Hellinger
 Hinkley
 Hoeffding
 Hoeffding's
@@ -23,6 +26,7 @@ Kullback
 Leibler
 MOA
 Pears
+Polikar
 Raab
 Sakthithasan
 SeqDrift

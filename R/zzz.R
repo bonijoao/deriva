@@ -347,4 +347,17 @@
       reference = "Sakthithasan, Pears & Koh (2013). One Pass Concept Change Detection for Data Streams. PAKDD 2013, LNCS 7819."
     )
   )
+
+  register_drift_method(
+    name = "hdddm",
+    init = hdddm_init,
+    step = hdddm_step,
+    signal_type = "distribution",
+    params = list(batch_size = 100, gamma = 1),
+    checks = list(batch_size = p_whole(4), gamma = p_number(0, open_min = TRUE)),
+    meta = list(
+      full_name = "Hellinger Distance Drift Detection Method",
+      reference = "Ditzler & Polikar (2011). Hellinger Distance Based Drift Detection for Nonstationary Environments. IEEE Symposium on Computational Intelligence in Dynamic and Uncertain Environments (CIDUE), 41-48."
+    )
+  )
 }
