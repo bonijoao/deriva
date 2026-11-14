@@ -30,3 +30,48 @@ hdddm_counts <- function(x, edges) {
 hdddm_distance <- function(P, Q) {
   sqrt(sum((sqrt(P / sum(P)) - sqrt(Q / sum(Q)))^2))
 }
+
+hdddm_init <- function(params) {
+  list(params = params, buf = numeric(0), edges = NULL, Q = NULL,
+       prev_d = NA_real_, eps = numeric(0), verdict = NA)
+}
+
+# Fig. 4 of Ditzler & Polikar (2011). Flags change on the observation that
+# completes a batch and carry forward in between; NA while (re-)warming.
+hdddm_step <- function(state, obs) {
+  p <- state$params
+  state$buf <- c(state$buf, obs)
+  if (length(state$buf) < p$batch_size) {
+    return(list(state = state, signal = list(warning = NA, drift = state$verdict)))
+  }
+  batch <- state$buf
+  state$buf <- numeric(0)
+  if (is.null(state$edges)) {                      # first batch: the reference
+    state$edges <- hdddm_edges(batch, floor(sqrt(p$batch_size)))
+    state$Q <- hdddm_counts(batch, state$edges)
+    return(list(state = state, signal = list(warning = NA, drift = NA)))
+  }
+  P <- hdddm_counts(batch, state$edges)
+  d <- hdddm_distance(P, state$Q)
+  drift <- NA
+  if (!is.na(state$prev_d)) {
+    e <- abs(d - state$prev_d)
+    if (length(state$eps) >= 1) {
+      m <- mean(state$eps)
+      beta <- m + p$gamma * sqrt(mean((state$eps - m)^2))  # Eq. (2), population sd
+      drift <- e > beta
+    }
+  }
+  if (isTRUE(drift)) {                             # the batch becomes the reference
+    state$Q <- P
+    state$prev_d <- NA_real_
+    state$eps <- numeric(0)
+    state$verdict <- NA
+  } else {
+    if (!is.na(state$prev_d)) state$eps <- c(state$eps, abs(d - state$prev_d))
+    state$prev_d <- d
+    state$Q <- state$Q + P
+    state$verdict <- drift
+  }
+  list(state = state, signal = list(warning = NA, drift = drift))
+}

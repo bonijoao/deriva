@@ -15,3 +15,47 @@ test_that("hdddm bins absorb out-of-range and infinite values", {
 test_that("hdddm_edges copes with a batch without finite values", {
   expect_equal(hdddm_edges(c(Inf, -Inf), 2), c(-0.5, 0, 0.5))
 })
+
+run_hd <- function(x, ...) detect_drift(tibble::tibble(value = x), .col = value, method = "hdddm", ...)
+
+test_that("hdddm is registered with its defaults", {
+  m <- drift_method("hdddm")
+  expect_identical(m$signal_type, "distribution")
+  expect_identical(m$params, list(batch_size = 100, gamma = 1))
+})
+
+test_that("hdddm is NA until its first test at observation 400", {
+  set.seed(1); r <- run_hd(stats::rnorm(600))
+  expect_true(all(is.na(r$.drift[1:399])))
+  expect_false(is.na(r$.drift[400]))
+  expect_true(all(is.na(r$.warning)))
+})
+
+test_that("hdddm detects a mean shift and a variance shift", {
+  set.seed(2); r <- run_hd(c(stats::rnorm(1000), stats::rnorm(600, 3)))
+  expect_true(any(r$.drift[1001:1600], na.rm = TRUE))
+  set.seed(3); r <- run_hd(c(stats::rnorm(1000), stats::rnorm(600, 0, 4)))
+  expect_true(any(r$.drift[1001:1600], na.rm = TRUE))
+})
+
+test_that("hdddm re-warms for three batches after a drift", {
+  set.seed(4); r <- run_hd(c(stats::rnorm(800), stats::rnorm(800, 5)))
+  hit <- which(r$.drift)[1]
+  expect_false(is.na(hit))
+  expect_equal(hit %% 100, 0)                                   # flags change on batch ends
+  expect_true(all(is.na(r$.drift[(hit + 1):(hit + 299)])))
+  expect_false(is.na(r$.drift[hit + 300]))
+})
+
+test_that("hdddm survives a constant stream and infinite values", {
+  expect_false(any(run_hd(rep(1, 1000))$.drift, na.rm = TRUE))
+  set.seed(5); x <- stats::rnorm(1000); x[c(150, 650)] <- c(Inf, -Inf)
+  expect_no_error(run_hd(x))
+})
+
+test_that("hdddm is batch-invariant", {
+  set.seed(6); s <- tibble::tibble(value = c(stats::rnorm(900), stats::rnorm(900, 2)))
+  f0 <- fit(drift_detector("hdddm"), s[1:250, ], signal = value)
+  expect_identical(advance(f0, s[251:1800, ])$history,
+                   advance(advance(f0, s[251:1111, ]), s[1112:1800, ])$history)
+})
