@@ -2,7 +2,8 @@ no_warm_up <- c("hddm_a", "hddm_w")
 no_warning_level <- c("ewma", "page_hinkley", "cusum", "kswin", "adwin", "seed",
                       "seqdrift2", "fhddms", "mddm_a", "mddm_g", "mddm_e",
                       "kl_divergence",
-                      "hdddm")
+                      "hdddm",
+                      "quanttree")
 
 test_that("NA marks observations a detector did not evaluate", {
   for (m in setdiff(names(the$methods), no_warm_up)) {
@@ -31,7 +32,8 @@ test_that("warm-up ends where each algorithm first evaluates", {
                        mddm_e = 100, kswin = 101, adwin = 11, seed = 64,
                        seqdrift2 = 400, kl_divergence = 400,
                        seqdrift1 = 400,
-                       hdddm = 400)
+                       hdddm = 400,
+                       quanttree = 576)
   for (m in names(first_evaluated)) {
     d <- run_on_bundled(m)$.drift
     expect_identical(which(!is.na(d))[[1]], as.integer(first_evaluated[[m]]), label = m)
