@@ -86,9 +86,11 @@
   small `alpha` is the paper's remedy for testing on every observation, and
   in simulation 4 in 100 stationary streams of 2000 observations raised a
   false alarm. Our choices: the initial reference is the first `window_size`
-  observations, and the two windows never overlap. On the bundled
-  `sensor_monitoring` stream it flags the shift at row 542 and again at row
-  642, because the new reference is the window that straddles the change.
+  observations, and the two windows never overlap. As in the paper, the
+  window that triggered a drift becomes the new reference; it usually still
+  straddles the change, so an abrupt change is often flagged twice,
+  `window_size` observations apart (71 times in 100 in simulation). On the
+  bundled `sensor_monitoring` stream it flags the shift at rows 542 and 642.
 
 # deriva 0.2.0
 
