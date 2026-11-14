@@ -35,17 +35,20 @@
   changes. Without drift the batch joins the reference; on drift it replaces
   it. Flags change only when a batch completes, the first test is at
   observation `4 * batch_size`, and there is no warning level. Our choices: bin
-  edges are equal-width over the first reference batch, with values outside
-  them counted in the outer bins; `batch_size = 100`, since the paper does not
+  edges are equal-width over the reference batch and are rebuilt from the
+  drift batch when it becomes the new reference (the paper assumes a known
+  support and keeps them), with values outside them counted in the outer bins; `batch_size = 100`, since the paper does not
   report one; the t-statistic threshold of Eq. (3) is not included. The
   adaptive threshold makes HDDDM alarm-prone on stationary data: in simulation
   98 in 100 stationary normal streams of 2000 observations raised at least one
-  alarm (2.8 per stream on average), many at the first test, where only one
+  alarm (2.9 per stream on average), many at the first test, where only one
   past change sets the threshold. Raising `gamma` helps only a little (72 in
   100 at `gamma = 3`). On the bundled `sensor_monitoring` stream it raises one
-  such alarm at row 400; the true shift at row 501 then falls in the first
-  batch after the restart, which only sets the scale of the threshold, and is
-  never reported.
+  such alarm at row 400; the true shift at row 501 then falls in the second
+  batch after the restart, whose change in distance is the first one recorded
+  and only sets the scale of the threshold, so it is never reported. In
+  general, a change during the first three batches after a start or a drift
+  is absorbed this way.
 
 # deriva 0.2.0
 

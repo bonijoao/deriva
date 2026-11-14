@@ -59,3 +59,10 @@ test_that("hdddm is batch-invariant", {
   expect_identical(advance(f0, s[251:1800, ])$history,
                    advance(advance(f0, s[251:1111, ]), s[1112:1800, ])$history)
 })
+
+test_that("hdddm rebuilds its bins after a drift and sees a second shift", {
+  # with bins fixed by the first batch the second shift was never seen (0 of 50 seeds)
+  set.seed(4); r <- run_hd(c(stats::rnorm(1000), stats::rnorm(1050, 10), stats::rnorm(1000, 20)))
+  expect_true(any(r$.drift[1001:2050], na.rm = TRUE))
+  expect_true(any(r$.drift[2051:3050], na.rm = TRUE))
+})

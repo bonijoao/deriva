@@ -6,9 +6,10 @@
 # flagged when the change in distance |eps(t)| exceeds the adaptive threshold
 # of Eq. (2), mean(|eps|) + gamma * sd(|eps|). Without drift the batch joins
 # the reference (Q <- Q + P); on drift the reference becomes the batch (Q <- P).
-# Ours: bin edges are equal-width over the first reference batch (the paper
-# assumes a known finite support), and the outer bins absorb out-of-range and
-# infinite values; the default batch_size (the paper does not report one); the
+# Ours: bin edges are equal-width over the reference batch, rebuilt from the
+# drift batch when it becomes the new reference (the paper assumes a known
+# finite support and keeps the bins), and the outer bins absorb out-of-range
+# and infinite values; the default batch_size (the paper does not report one); the
 # t-statistic threshold of Eq. (3) is left out (its degrees of freedom are not
 # defined, and the paper prefers Eq. 2). Only counts are stored, as in the
 # paper (assumption iii). Deterministic. Original code (MIT).
@@ -63,7 +64,10 @@ hdddm_step <- function(state, obs) {
     }
   }
   if (isTRUE(drift)) {                             # the batch becomes the reference
-    state$Q <- P
+    # its own bins (ours): edges from the old regime would lump the new one into
+    # an outer bin and hide any further change in the same direction
+    state$edges <- hdddm_edges(batch, length(state$Q))
+    state$Q <- hdddm_counts(batch, state$edges)
     state$prev_d <- NA_real_
     state$eps <- numeric(0)
     state$verdict <- NA
