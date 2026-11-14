@@ -65,8 +65,11 @@
   paper's (`train_size = 512`, `n_bins = 16`, `alpha = 0.01` instead of 4096,
   32 and 0.05), so the warm-up stays short and false alarms rare; only the
   Pearson statistic. The guarantee assumes continuous data: tied values, such
-  as 0/1 errors, break the equal-count bins. The paper adds a little noise to
-  such data; deriva does not.
+  as 0/1 errors or counts, break the equal-count bins and make nearly every
+  batch alarm, so the detector warns once when its training set has ties. The
+  paper adds a little noise to such data; deriva does not. When `train_size`
+  is not a multiple of `n_bins`, the remainder is spread over the last bins
+  (the paper's rounding can leave the last bin empty).
 
 # deriva 0.2.0
 

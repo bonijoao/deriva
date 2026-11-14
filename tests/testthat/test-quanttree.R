@@ -68,10 +68,37 @@ test_that("quanttree is reproducible, batch-invariant, and copes with ties", {
   f0 <- fit(drift_detector("quanttree", seed = 9), s[1:300, ], signal = value)
   expect_identical(advance(f0, s[301:1800, ])$history,
                    advance(advance(f0, s[301:1000, ]), s[1001:1800, ])$history)
-  expect_no_error(run_qt(stats::rbinom(1200, 1, 0.2)))
+  expect_warning(run_qt(stats::rbinom(1200, 1, 0.2)), "tied")   # no error, one warning
 })
 
 test_that("quanttree rejects impossible settings", {
   expect_error(drift_detector("quanttree", n_bins = 600), "n_bins")
   expect_error(drift_detector("quanttree", n_sim = 100), "n_sim")
+})
+
+test_that("qt_sizes gives every bin at least one training value", {
+  for (nk in list(c(1000, 64), c(286, 27), c(300, 40), c(2000, 128), c(16, 16))) {
+    L <- qt_sizes(nk[1], nk[2])
+    expect_identical(sum(L), as.integer(nk[1]))
+    expect_true(all(L >= 1))
+    expect_lte(max(L) - min(L), 1L)
+  }
+  set.seed(8)
+  expect_no_error(run_qt(stats::rnorm(1200), train_size = 1000, n_bins = 64, n_sim = 2e4))
+})
+
+test_that("quanttree warns once when its training set has ties", {
+  set.seed(9)
+  expect_warning(r <- run_qt(stats::rbinom(3000, 1, 0.2)), "tied")
+  expect_no_warning(run_qt(stats::rnorm(1200)))
+  w <- 0
+  withCallingHandlers(run_qt(stats::rbinom(3000, 1, 0.2)),
+                      warning = function(cnd) { w <<- w + 1; invokeRestart("muffleWarning") })
+  expect_identical(w, 1)
+})
+
+test_that("qt_threshold scales linearly in the number of bins", {
+  skip_on_cran()
+  set.seed(10)
+  expect_lt(system.time(qt_threshold(4096, 1024, 64, 0.05, 1e4))[["elapsed"]], 5)
 })
