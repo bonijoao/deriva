@@ -87,3 +87,24 @@ test_that("optwin with f_test = FALSE decides on the t-test alone", {
   set.seed(10); r <- run_ow(c(stats::rbinom(1500, 1, 0.05), stats::rbinom(1500, 1, 0.15)), f_test = FALSE)
   expect_true(any(r$.drift[1501:3000], na.rm = TRUE))
 })
+
+test_that("optwin_cut is the largest W_hist with R <= rho, by brute force", {
+  brute <- function(n, cf, rho) {
+    dp <- cf^(1 / 4); nh <- 2:(n - 2); nn <- n - nh; f <- stats::qf(dp, nh - 1, nn - 1)
+    R <- stats::qt(dp, optwin_df(nh, nn, f)) * sqrt(1 / nh + f / nn)
+    if (any(R <= rho)) max(nh[R <= rho]) else floor(n / 2) + 1
+  }
+  for (cf in c(0.99, 0.999)) for (rho in c(0.1, 0.5, 1)) for (n in c(5, 30, 179, 181, 400, 1234, 3999)) {
+    expect_identical(optwin_cut(n, cf, rho)$cut, as.integer(brute(n, cf, rho)), label = paste(cf, rho, n))
+  }
+})
+
+test_that("optwin fills its cut cache quickly for a small rho", {
+  skip_on_cran()
+  expect_lt(system.time(for (n in 30:4000) optwin_cut(n, 0.97, 0.1))[["elapsed"]], 10)
+})
+
+test_that("optwin's warning is FALSE on the drift observation", {
+  set.seed(11); r <- run_ow(c(stats::rbinom(500, 1, 0.1), stats::rbinom(500, 1, 0.6)))
+  expect_false(any(r$.warning[which(r$.drift)]))
+})

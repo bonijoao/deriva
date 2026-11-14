@@ -111,7 +111,7 @@
   rate raised about 10 false alarms each (0.27 at 20%). The new parameter
   `f_test = FALSE` (ours; the default `TRUE` keeps the paper's Algorithm 1)
   leaves the F-test out, which brought the false alarms to 0 and 0.02 per
-  stream while still detecting a rise from 5% to 15% in 98 of 100 runs
+  stream (0.20 at 20%) while still detecting a rise from 5% to 15% in 98 of 100 runs
   (median delay 150); a rise from 1% to 3% was then not detected. On the
   bundled `credit_monitoring` stream the default flags rows 30 (a false alarm
   from the F-test) and 520; with `f_test = FALSE` it flags row 542 only.

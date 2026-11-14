@@ -42,15 +42,51 @@ optwin_cut <- function(n, confidence, rho) {
     f <- stats::qf(dp, nh - 1, nn - 1)
     stats::qt(dp, optwin_df(nh, nn, f)) * sqrt(1 / nh + f / nn)
   }
-  cut <- NA_integer_
-  lo <- 2L
-  while (is.na(cut) && lo <= n - 2L) {             # smallest W_new, in chunks
-    nn <- lo:min(lo + 63L, n - 2L)
-    ok <- which(R(nn) <= rho)
-    if (length(ok)) cut <- as.integer(n - nn[ok[1]])
-    lo <- lo + 64L
+  # The smallest W_new with R <= rho gives the largest W_hist. Past w_proof it
+  # is usually small, so try the first 64 sizes at once. Otherwise use that R
+  # is unimodal in |W_new| (checked numerically over confidence 0.9-0.999 and
+  # windows of 5 to 25000): locate its minimum by ternary search, then bisect.
+  # Between neighbouring window sizes the answer moves little, so first look
+  # around the last one found for this configuration: a value above rho
+  # followed by one at or below it brackets the answer, R being unimodal.
+  hkey <- paste(confidence, rho, "hint")
+  hint <- optwin_cache[[hkey]]
+  near <- if (is.null(hint)) integer(0) else max(2L, hint - 16L):min(n - 2L, hint + 16L)
+  first <- 2:min(65L, n - 2L)
+  for (try in list(near, first)) {
+    if (!length(try)) next
+    ok <- which(R(try) <= rho)
+    if (length(ok) && (ok[1] > 1L || try[1] == 2L)) {
+      optwin_cache[[hkey]] <- try[ok[1]]
+      return(optwin_store(key, n, as.integer(n - try[ok[1]]), dp))
+    }
   }
-  if (is.na(cut)) cut <- as.integer(floor(n / 2) + 1)  # no root: the middle
+  lo <- 2L
+  hi <- as.integer(n - 2L)
+  while (hi - lo > 2L) {
+    m1 <- lo + (hi - lo) %/% 3L
+    m2 <- hi - (hi - lo) %/% 3L
+    if (R(m1) <= R(m2)) hi <- m2 else lo <- m1
+  }
+  cand <- lo:hi
+  best <- cand[which.min(R(cand))]
+  if (R(best) <= rho) {
+    lo <- 2L
+    hi <- best
+    if (R(lo) <= rho) hi <- lo
+    while (hi - lo > 1L) {                         # R(lo) > rho >= R(hi)
+      mid <- (lo + hi) %/% 2L
+      if (R(mid) <= rho) hi <- mid else lo <- mid
+    }
+    cut <- as.integer(n - hi)
+    optwin_cache[[hkey]] <- hi
+  } else {
+    cut <- as.integer(floor(n / 2) + 1)            # no root: the middle
+  }
+  optwin_store(key, n, cut, dp)
+}
+
+optwin_store <- function(key, n, cut, dp) {
   nn <- n - cut
   fq <- stats::qf(dp, cut - 1, nn - 1)
   df <- optwin_df(cut, nn, fq)
