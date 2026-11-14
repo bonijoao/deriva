@@ -64,3 +64,36 @@ qt_threshold <- function(N, K, nu, alpha, n_sim) {
   above <- n_sim - findInterval(v, v)              # #{v > t} at each t = v_i
   min(v[above <= alpha * n_sim])
 }
+
+quanttree_init <- function(params, tau = NA_real_) {
+  list(params = params, tau = tau, train = numeric(0), cuts = NULL,
+       L = qt_sizes(params$train_size, params$n_bins), batch = numeric(0),
+       verdict = NA)
+}
+
+# Flags change on the observation that completes a batch and carry forward in
+# between; NA while the training set fills, at the start and after a drift.
+quanttree_step <- function(state, obs) {
+  p <- state$params
+  if (is.null(state$cuts)) {                       # filling the training set
+    state$train <- c(state$train, obs)
+    if (length(state$train) == p$train_size) {
+      state$cuts <- qt_cuts(state$train, p$n_bins)
+      state$train <- numeric(0)
+      if (is.na(state$tau)) {
+        state$tau <- qt_threshold(p$train_size, p$n_bins, p$batch_size, p$alpha, p$n_sim)
+      }
+    }
+    return(list(state = state, signal = list(warning = NA, drift = NA)))
+  }
+  state$batch <- c(state$batch, obs)
+  if (length(state$batch) < p$batch_size) {
+    return(list(state = state, signal = list(warning = NA, drift = state$verdict)))
+  }
+  y <- qt_counts(state$batch, state$cuts)
+  drift <- qt_pearson(y, state$L, p$train_size) > state$tau
+  state$batch <- numeric(0)
+  state$verdict <- FALSE
+  if (drift) state <- quanttree_init(p, state$tau)  # restart, keeping tau (ours)
+  list(state = state, signal = list(warning = NA, drift = drift))
+}

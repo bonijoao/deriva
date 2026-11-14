@@ -360,4 +360,29 @@
       reference = "Ditzler & Polikar (2011). Hellinger Distance Based Drift Detection for Nonstationary Environments. IEEE Symposium on Computational Intelligence in Dynamic and Uncertain Environments (CIDUE), 41-48."
     )
   )
+
+  register_drift_method(
+    name = "quanttree",
+    init = quanttree_init,
+    step = quanttree_step,
+    signal_type = "distribution",
+    params = list(train_size = 512, n_bins = 16, batch_size = 64, alpha = 0.01, n_sim = 1e5),
+    checks = list(train_size = p_whole(2), n_bins = p_whole(2), batch_size = p_whole(),
+                  alpha = p_prob(), n_sim = p_whole()),
+    constraint = function(p) {
+      if (p$n_bins > p$train_size) {               # every bin needs a training value
+        return(sprintf("`n_bins` (%s) must not exceed `train_size` (%s).",
+                       format(p$n_bins), format(p$train_size)))
+      }
+      if (p$n_sim * p$alpha < 10) {                # tau must rest on >= 10 exceedances
+        return(sprintf("`n_sim` (%s) must be at least 10 / `alpha` (%s).",
+                       format(p$n_sim), format(p$alpha)))
+      }
+      NULL
+    },
+    meta = list(
+      full_name = "QuantTree (quantile histogram change detection)",
+      reference = "Boracchi, Carrera, Cervellera & Macci\u00f2 (2018). QuantTree: Histograms for Change Detection in Multivariate Data Streams. Proc. 35th ICML, PMLR 80, 639-648."
+    )
+  )
 }
