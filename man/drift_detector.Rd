@@ -20,7 +20,7 @@ stream; on a numeric stream of a different magnitude, scale it to match.}
 detector draws from its own private random stream, carried inside the
 fitted object: results are reproducible, do not depend on how the stream
 is split into batches, and the session's global RNG is left untouched.
-Only \code{"kswin"}, \code{"seqdrift2"} and \code{"kl_divergence"} are stochastic. With \code{NULL} they draw
+Only \code{"kswin"}, \code{"seqdrift2"}, \code{"kl_divergence"} and \code{"quanttree"} are stochastic. With \code{NULL} they draw
 from the global RNG, so call \code{\link[=set.seed]{set.seed()}} yourself for reproducibility.}
 
 \item{keep}{Number of most recent annotated rows retained in the fitted
@@ -43,11 +43,11 @@ under one contract. \code{NA}: the detector cannot judge this observation yet â€
 it is warming up, which also happens again right after a detected drift
 resets it. \code{FALSE}: the detector is active and has not flagged drift as of
 this observation; note that \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"},
-\code{"seqdrift1"} and \code{"hdddm"} run their test only on a clock or at block boundaries, so
+\code{"seqdrift1"}, \code{"hdddm"} and \code{"quanttree"} run their test only on a clock or at block boundaries, so
 between tests they carry the previous verdict forward. \code{TRUE}: it flagged drift here. Detectors with
 no warning level (\code{"ewma"}, \code{"page_hinkley"}, \code{"cusum"}, \code{"kswin"},
 \code{"adwin"}, \code{"seed"}, \code{"seqdrift2"}, \code{"fhddms"}, \code{"mddm_a"}, \code{"mddm_g"},
-\code{"mddm_e"}, \code{"kl_divergence"}, \code{"hdddm"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
+\code{"mddm_e"}, \code{"kl_divergence"}, \code{"hdddm"}, \code{"quanttree"}) always give \code{.warning = NA}. Use \code{which(.drift)} or
 \code{dplyr::filter(.drift)}, which skip \code{NA}; \code{any(.drift)} needs \code{na.rm = TRUE}.
 }
 

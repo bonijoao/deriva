@@ -49,6 +49,24 @@
   and only sets the scale of the threshold, so it is never reported. In
   general, a change during the first three batches after a start or a drift
   is absorbed this way.
+* New detector `"quanttree"`, QuantTree of Boracchi, Carrera, Cervellera and
+  Macciò (2018) in one dimension. The first `train_size` observations are cut
+  at their order statistics into `n_bins` bins of equal training counts; each
+  following batch of `batch_size` values is tested with the Pearson statistic
+  against a threshold that, by the paper's Theorem 1, does not depend on the
+  data. The threshold is simulated once from the exact null law (Algorithm 2),
+  which makes the method stochastic, so it honours `seed`. It has no warning
+  level, and flags change only when a batch completes; the first test is at
+  observation 576 at the defaults. `alpha` is a false-positive rate per batch:
+  at the defaults a stationary stream raises a false alarm about once every
+  6400 observations (once every 8600 in simulation). Our choices: on drift the
+  detector restarts and the next `train_size` values form a new training set
+  (the paper defines only the single-batch test); defaults smaller than the
+  paper's (`train_size = 512`, `n_bins = 16`, `alpha = 0.01` instead of 4096,
+  32 and 0.05), so the warm-up stays short and false alarms rare; only the
+  Pearson statistic. The guarantee assumes continuous data: tied values, such
+  as 0/1 errors, break the equal-count bins. The paper adds a little noise to
+  such data; deriva does not.
 
 # deriva 0.2.0
 
