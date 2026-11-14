@@ -35,7 +35,8 @@ test_that("warm-up ends where each algorithm first evaluates", {
                        seqdrift1 = 400,
                        hdddm = 400,
                        quanttree = 576,
-                       iks = 200)
+                       iks = 200,
+                       optwin = 30)
   for (m in names(first_evaluated)) {
     d <- run_on_bundled(m)$.drift
     expect_identical(which(!is.na(d))[[1]], as.integer(first_evaluated[[m]]), label = m)

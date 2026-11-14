@@ -407,4 +407,31 @@
       reference = "dos Reis, Flach, Matwin & Batista (2016). Fast Unsupervised Online Drift Detection Using Incremental Kolmogorov-Smirnov Test. KDD 2016, 1545-1554."
     )
   )
+
+  register_drift_method(
+    name = "optwin",
+    init = optwin_init,
+    step = optwin_step,
+    signal_type = "error",
+    params = list(confidence = 0.99, rho = 0.5, max_window = 25000, min_window = 30,
+                  warning_confidence = 0.98, f_test = TRUE),
+    checks = list(confidence = p_prob(), rho = p_number(0, open_min = TRUE),
+                  max_window = p_whole(5), min_window = p_whole(5),
+                  warning_confidence = p_prob(), f_test = p_flag()),
+    constraint = function(p) {
+      if (p$min_window > p$max_window) {
+        return(sprintf("`min_window` (%s) must not exceed `max_window` (%s).",
+                       format(p$min_window), format(p$max_window)))
+      }
+      if (p$warning_confidence >= p$confidence) {  # otherwise no warning can precede a drift
+        return(sprintf("`warning_confidence` (%s) must be smaller than `confidence` (%s).",
+                       format(p$warning_confidence), format(p$confidence)))
+      }
+      NULL
+    },
+    meta = list(
+      full_name = "OPTWIN (optimal sub-windows)",
+      reference = "Tosi & Theobald (2024). OPTWIN: Drift Identification with Optimal Sub-Windows. IEEE ICDE Workshops (DBML 2024), 331-337."
+    )
+  )
 }
