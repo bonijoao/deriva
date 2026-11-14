@@ -91,6 +91,30 @@
   straddles the change, so an abrupt change is often flagged twice,
   `window_size` observations apart (71 times in 100 in simulation). On the
   bundled `sensor_monitoring` stream it flags the shift at rows 542 and 642.
+* New detector `"optwin"`, OPTWIN of Tosi and Theobald (2024), for 0/1 error
+  streams. A sliding window of errors is split at the optimal cut of the
+  paper's Eq. (1), which depends only on the window size, `confidence` and
+  `rho` and is cached; an F-test on the variances and a one-sided Welch t-test
+  then compare the older and newer parts, and drift is flagged when either is
+  significant and the error rate rose. The window then restarts. The first
+  test is at observation `min_window` (30). The warning level, a t-test at
+  `warning_confidence = 0.98`, comes from the authors' code; the papers define
+  none. Defaults follow the papers' experiments. Where the authors' code and
+  the paper disagree we follow the paper: the degrees of freedom of Eq. (2) as
+  printed (the code uses `1/f^2`, which moves the first non-middle cut from
+  window size 181 to 179), variances in the t statistic as in Eq. (3) (the code
+  uses standard deviations), the sign that detects a rise, and sample standard
+  deviations; the F-test degrees of freedom follow Algorithm 1 and the
+  authors' tables. On low error rates the F-test fires on stationary data,
+  because a part of the window with almost no errors has a near-zero
+  variance: in simulation, streams of 3000 observations at a 1% or 5% error
+  rate raised about 10 false alarms each (0.27 at 20%). The new parameter
+  `f_test = FALSE` (ours; the default `TRUE` keeps the paper's Algorithm 1)
+  leaves the F-test out, which brought the false alarms to 0 and 0.02 per
+  stream while still detecting a rise from 5% to 15% in 98 of 100 runs
+  (median delay 150); a rise from 1% to 3% was then not detected. On the
+  bundled `credit_monitoring` stream the default flags rows 30 (a false alarm
+  from the F-test) and 520; with `f_test = FALSE` it flags row 542 only.
 
 # deriva 0.2.0
 

@@ -431,7 +431,7 @@
     },
     meta = list(
       full_name = "OPTWIN (optimal sub-windows)",
-      reference = "Tosi & Theobald (2024). OPTWIN: Drift Identification with Optimal Sub-Windows. IEEE ICDE Workshops (DBML 2024)."
+      reference = "Tosi & Theobald (2024). OPTWIN: Drift Identification with Optimal Sub-Windows. IEEE ICDE Workshops (DBML 2024), 331-337."
     )
   )
 }
