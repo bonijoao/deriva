@@ -17,7 +17,7 @@ Description: Detects concept drift and data drift in streams produced by
     with the 'tidymodels' ecosystem. Detectors are specified, fitted on a
     baseline period, and advanced over new batches of observations,
     returning tibbles annotated with warning and drift flags. A catalogue
-    of 26 sequential drift detectors is provided. Error-based methods
+    of 27 sequential drift detectors is provided. Error-based methods
     include the Drift Detection Method (DDM) of Gama et al. (2004)
     <doi:10.1007/978-3-540-28645-5_29>, the Early Drift Detection Method
     (EDDM) of Baena-Garcia et al. (2006), the Hoeffding's inequality
@@ -32,8 +32,10 @@ Description: Detects concept drift and data drift in streams produced by
     Kullback-Leibler change detector of Dasu et al. (2006), SeqDrift1 of
     Sakthithasan et al. (2013) <doi:10.1007/978-3-642-37456-2_39>, the
     Hellinger Distance Drift Detection Method (HDDDM) of Ditzler and Polikar
-    (2011) <doi:10.1109/CIDUE.2011.5948491>, and QuantTree of Boracchi et
-    al. (2018) <https://proceedings.mlr.press/v80/boracchi18a.html>.
+    (2011) <doi:10.1109/CIDUE.2011.5948491>, QuantTree of Boracchi et al.
+    (2018) <https://proceedings.mlr.press/v80/boracchi18a.html>, and the
+    incremental Kolmogorov-Smirnov detector of dos Reis et al. (2016)
+    <doi:10.1145/2939672.2939836>.
 License: MIT + file LICENSE
 URL: https://github.com/bonijoao/deriva, https://bonijoao.github.io/deriva/
 BugReports: https://github.com/bonijoao/deriva/issues
