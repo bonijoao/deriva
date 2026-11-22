@@ -3,6 +3,10 @@ url: https://bonijoao.github.io/deriva/
 template:
   bootstrap: 5
 
+authors:
+  João Paulo Assis Bonifácio:
+    href: https://bonijoao.github.io/
+
 reference:
 - title: Specifying and fitting detectors
   desc: >
