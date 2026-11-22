@@ -2,8 +2,8 @@
 
 ## Authors
 
-- **João Paulo Assis Bonifácio**. Author, maintainer.
-  [](https://orcid.org/0009-0009-2335-8391)
+- **[João Paulo Assis Bonifácio](https://bonijoao.github.io/)**. Author,
+  maintainer. [](https://orcid.org/0009-0009-2335-8391)
 
 - **Geraldo Magela da Cruz Pereira**. Author.
   [](https://orcid.org/0000-0001-6280-4870)

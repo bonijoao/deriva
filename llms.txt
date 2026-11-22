@@ -1,7 +1,5 @@
 # deriva
 
-![deriva package logo](reference/figures/logo.png)
-
 **Read this in other languages:**
 [Português](https://github.com/bonijoao/deriva/blob/main/README.pt-BR.md)
 
